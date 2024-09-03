@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router-dom";
 
 function Login()
 {
@@ -12,8 +12,8 @@ function Login()
             <input type="text" placeholder="enter passsword"/><br></br>
             <button type="submit">LogIn</button>
         </form>
-        <label><a>Forget Password</a></label><br></br>
-        <label><a>Don't have an account</a></label>
+        <label><Link to='/forgot'>Forget Password</Link></label><br></br>
+        <label><Link to='/signup'>Don't have an account</Link></label>
     </div>
 )}
 
