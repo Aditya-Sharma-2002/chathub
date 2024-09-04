@@ -6,12 +6,26 @@ const authRoutes = require('./routes/authRoutes')
 
 const app = express();
 
+
 app.use(cors());
 app.use(express.json());
 
 app.use("/api",authRoutes);
 
 const port = process.env.PORT || 5000 ;
+const URI = "mongodb://localhost:27017/chatHub";
+
+try{
+mongoose.connect(URI,({
+    useNewUrlParser:true,
+    useUnifiedTopology:true
+}))
+console.log("Connected to mongoDB");
+}
+catch(error)
+{
+    console.log("Error in connecting to database", error);
+}
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
