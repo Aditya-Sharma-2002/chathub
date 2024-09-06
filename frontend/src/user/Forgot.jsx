@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { forgot } from './apiUser';
 
 function Forgot(){
 
@@ -18,9 +19,14 @@ function Forgot(){
 
     function handleSubmit(e){
         e.preventDefault();
-        if(email.length != 0 && otp!= 0 && password === repassword)
+        if(email.length != 0 && otp === OTP && password === repassword)
             setActive(true);
     }
+
+    const OTP = forgot().then(data => {
+        if(data.error)
+            console.log(data.error);        
+    });
 
     return(
         <div className="container">
