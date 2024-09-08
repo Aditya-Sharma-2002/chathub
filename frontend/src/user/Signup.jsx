@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { signup } from './apiUser';
 
 function Signup(){
 
@@ -10,8 +11,11 @@ function Signup(){
     function handleSubmit(e){
         e.preventDefault();
         if(password === repassword){
-            alert('Name : ' + name );
+            signup(name, email, password).then(data => {
+                if(data.error) console.log(data.error);
+            })
         }
+
     }
 
     return(
