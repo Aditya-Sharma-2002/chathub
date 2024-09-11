@@ -32,7 +32,7 @@ export const forgot = () => {
     return fetch(`${API}/forgot`, {
         method : "GET",
         headers : {
-            Accept : 'applcation/json',
+            Accept : 'application/json',
             "Content-type" : "application/json"
         }
     })
