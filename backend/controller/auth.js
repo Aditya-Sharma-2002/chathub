@@ -1,5 +1,7 @@
 const User = require('../model/user');
 const bcrypt = require('bcrypt');
+const nodemailer = require("nodemailer");
+
 
 
 encryptPassword =  async(password)=>{
@@ -30,16 +32,14 @@ exports.signUp= async(req,res)=>{
       const savedUser=  await user.save();
       const userResponse = savedUser.toObject();
       delete userResponse.hashed_password;
-        res.json({user: userResponse});
+        res.json({user: userResponse,token: user.generateToken()});
     }
-    // user.save();
-    // user.salt = undefined;
-    // res.status(201).json({message:"user created successfully"});
+   
 
 catch(error)
 {
     console.log("error in signing up: ",error);
-    res.status(500).json({error:'error in singning up'});
+    res.status(500).json({error:'error in signing up'});
 }
 }
 
@@ -57,7 +57,7 @@ exports.login = async(req,res)=>{
             return res.status(201).json({message: "login successfull",user:{
                 name:user.name,
                 email:user.email
-            }});
+            }, token: user.generateToken(),});
         }
     }
     catch(error)
@@ -66,4 +66,59 @@ exports.login = async(req,res)=>{
         res.status(400).json({message:"error in login"});
     }
 }
+  
+randomOtp =()=>{
+    return Math.floor(1000 + Math.random() * 9000);
+}
+
+exports.forgot=async(req,res)=>{
+    try{
+    const {email}= req.body;
+    const user = await User.findOne({email: email});
+    if(!user)
+    {
+        return res.status(400).json({message: "Invalid email entered"})
+    }
+    else{
+        const otp = randomOtp();
+        const mail = await sendMail(email,otp);
+        return res.status(201).json({otp :otp ,message:"Your OTP genrated successfully"});
+    }
+    }
+    catch(error)
+    {
+        console.log("error", error);
+        res.status(400).json({message: "error in forgot password"});
+    }
+}
+
+sendMail = (userEmail,otp) => {    
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD,
+        }
+    });
+
+    let mailOptions = {
+        from: process.env.EMAIL,
+        to: `${userEmail}`,        
+        subject: "OTP For SIGN UP",
+        text: `Your OTP is ${otp}`
+    };
+
+    transporter.sendMail(mailOptions, function(err, info) {
+        if(err){            
+            console.log(err);
+            return;
+        }
+       
+        console.log("Sent: " + info.response);
+        return otp
+    });    
+};
+
+
+
 
