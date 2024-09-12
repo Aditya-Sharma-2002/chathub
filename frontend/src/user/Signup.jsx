@@ -1,16 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { signup } from './apiUser';
+import { nameValidator, emailValidator, passwordValidator } from '../core/validator';
 
 function Signup(){
-
     const [name,setName] = useState('');
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
     const [repassword,setRepassword] = useState('');
+    const [formErrors, setFormErrors] = useState({});
+
+    useEffect(() => {
+        nameValidator(name, formErrors, setFormErrors);
+        formErrors.name = '';
+    }, [name]);
+
+    useEffect(() => {   
+        emailValidator(email, formErrors, setFormErrors)
+        formErrors.email = ''
+    }, [email]);
+
+    useEffect(() => {
+        passwordValidator(password, formErrors, setFormErrors)
+        formErrors.password = '';
+    }, [password]);
 
     function handleSubmit(e){
         e.preventDefault();
+        nameValidator(name, formErrors, setFormErrors);
+        emailValidator(email, formErrors, setFormErrors);
+        passwordValidator(password, formErrors, setFormErrors);
         if(password === repassword){
-            alert('Name : ' + name );
+            signup(name, email, password).then(data => {
+                if(data.error) console.log(data.error);
+            })
         }
     }
 
