@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { forgot } from './apiUser';
+import { emailValidator, passwordValidator } from '../core/validator';
 
 function Forgot(){
 
     const [email,setEmail] = useState('');
-    const [otp,setOtp] = useState();
+    const [otp,setOtp] = useState('');
     const [password,setPassword] = useState('');
     const [repassword,setRepassword] = useState('');
     const [active,setActive] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
 
     useEffect(() => {
         if (email.length > 0 && otp.length > 0 && password === repassword && password.length > 0) {
@@ -15,27 +17,34 @@ function Forgot(){
         } else {
             setActive(false);
         }
-    }, [email, otp, password, repassword]);
-
+    }, [email, otp, password, repassword])
     function handleSubmit(e){
-        e.preventDefault();
+        e.preventDefault();        
+        
         if(email.length != 0 && otp === OTP && password === repassword)
             setActive(true);
     }
 
-    const OTP = forgot().then(data => {
-        if(data.error)
-            console.log(data.error);        
-    });
+    function getOTP(e){
+        e.preventDefault();
+        const OTP = forgot(email).then(data => {
+            console.log(data);
+            if(data.error)
+                console.log(data.error);        
+        });
+        setActive(true);
+    }
 
     return(
         <div className="container">
             <form onSubmit={handleSubmit}>
-                <label>Email <input type="email" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)}/></label><br/>
-                <label>OTP <input type="number" placeholder="Enter otp" onChange={(e) => setOtp(e.target.value)}/></label><br/>
-                <label>New Password <input type="password" placeholder="Enter new password" onChange={(e) => setPassword(e.target.value)}/></label><br/>
-                <label>Re-enter Password <input type="password" placeholder="Re-enter your password" onChange={(e) => setRepassword(e.target.value)}/></label><br/>
-                <button disabled={active}>Change Password</button>
+                {!active ? <label>Email <input type="email" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)}/><br/><br/></label> : <label>Email <input disabled type="email" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)}/><br/><br/></label>}
+                <p></p>
+                {active ? <label>OTP <input type="text" placeholder="Enter otp" onChange={(e) => setOtp(e.target.value)}/><br/><br/></label> : ''}
+                {active ? <label>New Password <input type="password" placeholder="Enter new password" onChange={(e) => setPassword(e.target.value)}/><br/><br/></label> : ''}
+                {active ? <label>Re-enter Password <input type="password" placeholder="Re-enter your password" onChange={(e) => setRepassword(e.target.value)}/><br/><br/></label> : ''}
+                {active ? <button type='submit' disabled={active}>Change Password</button> : <button onClick={getOTP}>Send OTP</button>}
+                
             </form>
         </div>
     );

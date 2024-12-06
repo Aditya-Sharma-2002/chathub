@@ -43,7 +43,7 @@ userSchema.methods.generateToken = function(){
             email: this.email
         },
     process.env.JWT_SECRET_KEY,
-    { expiresIn: '30d' } 
+    { expiresIn: '30m' } 
     );
     }
     catch(error)
@@ -51,6 +51,5 @@ userSchema.methods.generateToken = function(){
         console.log("Error in generatin token",error)
     }
 }
-
 
 module.exports = mongoose.model('User', userSchema);

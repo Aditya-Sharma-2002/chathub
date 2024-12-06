@@ -1,41 +1,62 @@
 import { API } from '../api';
+// import '../api';
+import axios from "axios";
 
-export const login = (email,password) => {
-    return fetch(`${API}/login`, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            "Content-type" : 'application/json',
-        },
-        body: JSON.stringify({email, password})
-    })
-    .then((response) => {
-        return response.json();
-    })
-    .catch(err => console.log(err))
+export const login = async (email,password) => {
+    try{
+        const response = await axios.post(`${API}/login`,{
+            email: email,
+            password: password
+        });
+        console.log(response);
+        return response;
+    }catch(err){
+        return err;
+    }
 }
 
-export const signup = (name,email,password) => {
-    return fetch(`${API}/signup`, {
-        method : "POST",
-        headers : {
-            Accept : 'application/json',
-            "Content-type" : "application/json"
-        },
-        body: JSON.stringify({name, email, password})
-    })
-    .then(response => {return response.json()})
-    .catch(err => console.log(err))
+export const signup = async (name,email,password) => {
+    try{
+        const response = await axios.post(`${API}/signup`,{
+            name: name,
+            email: email,
+            hashed_password: password
+        })
+        return response;
+    }
+    catch(err){
+        console.log(err)
+    }
 }
 
-export const forgot = () => {
-    return fetch(`${API}/forgot`, {
-        method : "GET",
-        headers : {
-            Accept : 'application/json',
-            "Content-type" : "application/json"
-        }
-    })
-    .then(response => {return response.json()})
-    .catch(err => console.log(err))
+export const forgot = async (email) => {
+    try{
+        const response = await axios.get(`${API}/forgot`, {
+            email: email
+        })
+        return response;
+    }    
+    catch(err){
+        console.log(err)
+    }
 }
+
+export const logout = async () => {
+    try{
+        const response = await axios.get(`${API}/logout`)
+        localStorage.removeItem('token');
+        window.location.href = '/'
+        return response
+    }catch(err){
+        console.log(err);
+    }
+}
+
+// export const isAuthenticated = () => {
+//     if(typeof window == 'undefined')
+//         return false;
+//     if(localStorage.getItem('token'))
+//         return JSON.parse(localStorage.getItem('token'));
+//     else
+//         return false;
+// }

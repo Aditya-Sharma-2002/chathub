@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { signup } from './apiUser';
 import { nameValidator, emailValidator, passwordValidator } from '../core/validator';
+import { useNavigate } from 'react-router-dom';
 
 function Signup(){
     const [name,setName] = useState('');
@@ -8,6 +9,7 @@ function Signup(){
     const [password,setPassword] = useState('');
     const [repassword,setRepassword] = useState('');
     const [formErrors, setFormErrors] = useState({});
+    const navigate = useNavigate();
 
     useEffect(() => {
         nameValidator(name, formErrors, setFormErrors);
@@ -30,8 +32,13 @@ function Signup(){
         emailValidator(email, formErrors, setFormErrors);
         passwordValidator(password, formErrors, setFormErrors);
         if(password === repassword){
-            signup(name, email, password).then(data => {
-                if(data.error) console.log(data.error);
+            signup(name, email, password).then(response => {
+                if(response.error)
+                    console.log(response.error);
+                else{
+                    localStorage.setItem('token', JSON.stringify(response.data));
+                    navigate('/home/profile');
+                }                    
             })
         }
     }
