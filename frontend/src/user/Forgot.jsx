@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { forgot } from './apiUser';
-import { emailValidator, passwordValidator } from '../core/validator';
+import { nameValidator, emailValidator, passwordValidator } from '../core/validator';
+import { useLocation } from "react-router-dom";
 
 function Forgot(){
 
@@ -10,6 +11,8 @@ function Forgot(){
     const [repassword,setRepassword] = useState('');
     const [active,setActive] = useState(false);
     const [formErrors, setFormErrors] = useState({});
+    const location = useLocation();
+    const { emailO } = location.state || {};
 
     useEffect(() => {
         if (email.length > 0 && otp.length > 0 && password === repassword && password.length > 0) {
@@ -18,6 +21,7 @@ function Forgot(){
             setActive(false);
         }
     }, [email, otp, password, repassword])
+
     function handleSubmit(e){
         e.preventDefault();        
         
@@ -38,7 +42,7 @@ function Forgot(){
     return(
         <div className="container">
             <form onSubmit={handleSubmit}>
-                {!active ? <label>Email <input type="email" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)}/><br/><br/></label> : <label>Email <input disabled type="email" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)}/><br/><br/></label>}
+                {!active ? <label>Email <input type="email" placeholder="Enter email" value={location.state.emailO} onChange={(e) => setEmail(e.target.value)}/><br/><br/></label> : <label>Email <input disabled type="email" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)}/><br/><br/></label>}
                 <p></p>
                 {active ? <label>OTP <input type="text" placeholder="Enter otp" onChange={(e) => setOtp(e.target.value)}/><br/><br/></label> : ''}
                 {active ? <label>New Password <input type="password" placeholder="Enter new password" onChange={(e) => setPassword(e.target.value)}/><br/><br/></label> : ''}

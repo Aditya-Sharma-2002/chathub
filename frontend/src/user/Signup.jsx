@@ -53,7 +53,8 @@ function Signup(){
                     <input type='password' placeholder='Enter password' onChange={(e) => {setPassword(e.target.value)}}/> <br/>
                     <input type='password' placeholder='Re-enter your password' onChange={(e) => {setRepassword(e.target.value)}}/>
                 </label><br/><br/>
-                <input type='submit' value='Get register' />
+                <button type='submit'>Get Register</button>
+                {/* <input type='submit' value='Get register' /> */}
             </form>
         </div>
     );

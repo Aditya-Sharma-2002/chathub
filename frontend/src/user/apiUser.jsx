@@ -1,5 +1,4 @@
-import { API } from '../api';
-// import '../api';
+import { API } from '../core/api';
 import axios from "axios";
 
 export const login = async (email,password) => {
@@ -52,11 +51,14 @@ export const logout = async () => {
     }
 }
 
-// export const isAuthenticated = () => {
-//     if(typeof window == 'undefined')
-//         return false;
-//     if(localStorage.getItem('token'))
-//         return JSON.parse(localStorage.getItem('token'));
-//     else
-//         return false;
-// }
+export const profile = async (formData) => {
+    try{
+        const response = await axios.post(`${API}/profile`, {
+            profile : formData
+        });
+        return response;
+    }catch(err){
+        return err.response;
+        // console.log(err);
+    }
+}

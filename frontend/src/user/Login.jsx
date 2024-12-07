@@ -74,7 +74,7 @@ function Login()
             <p style={{color: 'red'}}>{status}</p>
 
         </form>
-        <button><Link to='/forgot'>Forgot Password</Link></button><br/>
+        <button><Link to='/forgot' state={{emailO: email}}>Forgot Password</Link></button><br/><br/>
         <button><Link to='/signup'>Don&apos;t have an account</Link></button>
     </div>
 )}
