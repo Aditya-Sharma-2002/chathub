@@ -1,6 +1,6 @@
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
-// const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 
 encryptPassword = async (password) => {
   try {
@@ -69,10 +69,6 @@ exports.login = async (req, res) => {
   }
 };
 
-randomOtp = () => {
-  return Math.floor(1000 + Math.random() * 9000);
-};
-
 exports.forgot = async (req, res) => {
   try {
     const { email } = req.body;
@@ -80,7 +76,7 @@ exports.forgot = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "Invalid email entered" });
     } else {
-      const otp = randomOtp();
+      const otp = Math.floor(1000 + Math.random() * 9000);
       const mail = await sendMail(email, otp);
       return res
         .status(201)
@@ -92,32 +88,32 @@ exports.forgot = async (req, res) => {
   }
 };
 
-// sendMail = (userEmail,otp) => {
-//     let transporter = nodemailer.createTransport({
-//         service: 'gmail',
-//         auth: {
-//             user: process.env.EMAIL,
-//             pass: process.env.PASSWORD,
-//         }
-//     });
+sendMail = (userEmail,otp) => {
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD,
+        }
+    });
 
-//     let mailOptions = {
-//         from: process.env.EMAIL,
-//         to: `${userEmail}`,
-//         subject: "OTP For SIGN UP",
-//         text: `Your OTP is ${otp}`
-//     };
+    let mailOptions = {
+        from: process.env.EMAIL,
+        to: `${userEmail}`,
+        subject: "OTP For SIGN UP",
+        text: `Your OTP is ${otp}`
+    };
 
-//     transporter.sendMail(mailOptions, function(err, info) {
-//         if(err){
-//             console.log(err);
-//             return;
-//         }
+    transporter.sendMail(mailOptions, function(err, info) {
+        if(err){
+            console.log(err);
+            return;
+        }
 
-//         console.log("Sent: " + info.response);
-//         return otp
-//     });
-// };
+        console.log("Sent: " + info.response);
+        return otp
+    });
+};
 
 exports.logout = (req, res) => {
   try{

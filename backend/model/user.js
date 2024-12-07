@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema(
             required : true,
             maxLength : 32
         },
+        profile : {
+            type : Buffer,
+            contentType: String
+        },
         email : {
             type : String,
             trim : true,
