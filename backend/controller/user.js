@@ -1,5 +1,6 @@
 const User = require('../model/user');
-
+const multer = require('multer');
+const upload = multer({dest : ''})
 exports.profile = async (req, res) => {
     try{
         console.log(req.body);
