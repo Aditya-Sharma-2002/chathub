@@ -143,3 +143,87 @@ form button a {
   color: inherit;
   text-decoration: none;
 }
+
+/* Sidebar container */
+.sidebar {
+  height: 100vh; /* Full height */
+  width: 300px; /* Sidebar width */
+  position: fixed; /* Fix sidebar to the left */
+  top: 0;
+  left: 0;
+  background-color: #f9f9f9; /* Background color */
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000; /* Ensure it stays above other elements */
+  overflow-y: auto; /* Scroll if content overflows */
+}
+
+/* Header section */
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  gap: 10px;
+  background-color: #ffffff; /* Optional: distinct background */
+  border-bottom: 1px solid #ddd; /* Divider between header and body */
+}
+
+/* Profile image button */
+.profile-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.profile-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* Circular image */
+  object-fit: cover;
+  border: 2px solid #ccc; /* Optional border */
+}
+
+/* Search bar */
+.search-bar {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar body (content) */
+.sidebar-body {
+  padding: 15px;
+  flex-grow: 1;
+}
+
+.sidebar-body ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-body li {
+  padding: 10px;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.sidebar-body li:hover {
+  background-color: #f0f0f0;
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 300px; /* Same as the sidebar width */
+  padding: 20px;
+}

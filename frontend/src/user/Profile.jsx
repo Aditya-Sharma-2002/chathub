@@ -3,18 +3,16 @@ import { Link } from "react-router-dom";
 import { profile } from "./apiUser";
 
 function Profile() {
-  const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
   const [image, setImage] = useState('https://via.placeholder.com/250');
 
   function handleImage(e){
-    setImage(e.target.files[0]);
-    const img = image;
-    console.log(img);
-    console.log(img ? 'Image exists' : 'Image do not exists');
+    const img = e.target.files[0];
+    setImage(img);
     const formData = new FormData();
     formData.append('profile', img);
-    formData.append('email', localStorage.getItem('email'));
+    formData.append('email', JSON.parse(localStorage.getItem('token'))?.user.email);
     profile(formData).then((response) => {
       console.log(response.data.message);
     })
@@ -47,6 +45,7 @@ function Profile() {
           type="text"
           placeholder="Enter name"
           onChange={(e) => setName(e.target.value)}
+          value={JSON.parse(localStorage.getItem('token'))?.user.name || ''}
         />
         <br />
         <br />

@@ -53,9 +53,11 @@ export const logout = async () => {
 
 export const profile = async (formData) => {
     try{
-        const response = await axios.post(`${API}/profile`, {
-            profile : formData
-        });
+        const response = await axios.post(`${API}/profile`, formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data', // Ensure proper content type for file upload
+            },
+          });
         return response;
     }catch(err){
         return err.response;

@@ -70,7 +70,7 @@ function Login()
             <label>Password</label><br/>
             <input type="password" placeholder="Enter passsword" onChange={(e) => handlePassword(e)} onBlur={() => handleBlur('password')}/><br/>  
             <p style={{color: 'red'}}>{formErrors.password}</p>
-            <button type="submit">Log In</button>            
+            <button type="submit">Log In</button>
             <p style={{color: 'red'}}>{status}</p>
 
         </form>
