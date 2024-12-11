@@ -12,7 +12,8 @@ const userSchema = new mongoose.Schema(
         },
         profile : {
             type : Buffer,
-            contentType: String
+            contentType: String,
+            default: 'https://via.placeholder.com/250'
         },
         email : {
             type : String,
