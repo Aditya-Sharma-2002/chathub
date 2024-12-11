@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { profile } from "./apiUser";
+import { setProfile } from "./apiUser";
 
 function Profile() {
-  const [name, setName] = useState('');
+  const [name, setName] = useState(JSON.parse(localStorage.getItem('token')).user.name);
   const [number, setNumber] = useState('');
   const [image, setImage] = useState('https://via.placeholder.com/250');
 
-  function handleImage(e){
+  async function handleImage(e){
     const img = e.target.files[0];
-    setImage(img);
-    const formData = new FormData();
+    if(!img) return;
+    setImage(URL.createObjectURL(img));    
+    const formData = new FormData();    
     formData.append('profile', img);
-    formData.append('email', JSON.parse(localStorage.getItem('token'))?.user.email);
-    profile(formData).then((response) => {
+    formData.append('email', JSON.parse(localStorage.getItem('token')).user.email);
+    setProfile(formData).then((response) => {
       console.log(response.data.message);
     })
   }

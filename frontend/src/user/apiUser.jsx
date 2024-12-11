@@ -7,7 +7,6 @@ export const login = async (email,password) => {
             email: email,
             password: password
         });
-        console.log(response);
         return response;
     }catch(err){
         return err;
@@ -51,7 +50,7 @@ export const logout = async () => {
     }
 }
 
-export const profile = async (formData) => {
+export const setProfile = async (formData) => {
     try{
         const response = await axios.post(`${API}/profile`, formData, {
             headers: {
@@ -62,5 +61,18 @@ export const profile = async (formData) => {
     }catch(err){
         return err.response;
         // console.log(err);
+    }
+}
+
+export const getProfile = async (email) => {
+    try{
+        const response = await axios.get(`${API}/getProfile`,{
+            params : {
+                email : email
+            }
+        });
+        return response;
+    }catch(err){
+        return err.response;
     }
 }
