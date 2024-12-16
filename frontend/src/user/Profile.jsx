@@ -1,16 +1,32 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
-import { setProfile } from "./apiUser";
+import { setProfile, getProfile } from "./apiUser";
 
 function Profile() {
   const [name, setName] = useState(JSON.parse(localStorage.getItem('token')).user.name);
-  const [number, setNumber] = useState('');
-  const [image, setImage] = useState('https://via.placeholder.com/250');
+  const [username, setUsername] = useState(JSON.parse(localStorage.getItem('token')).user.username || '');
+  const [profile, setProfile] = useState(JSON.parse(localStorage.getItem('token')).user.profile || '');
+  const [image, setImage] = useState(JSON.parse(localStorage.getItem('token')).user.profile || 'https://via.placeholder.com/250');
+
+  // useEffect(() => {
+    // async function fetchProfile(){
+    //   const email = JSON.parse(localStorage.getItem('token')).user.email;
+    //   try{
+    //     const res = await getProfile(email);
+    //     if(res && res.data && res.data.profile)
+    //       setProfile(res.data.profile);
+    //   }catch(err){
+    //     console.log(err);
+    //   }
+    // }
+    // fetchProfile();
+    // setImage(JSON.parse(localStorage.getItem('token')?.user.profile))
+  // },[]);
 
   async function handleImage(e){
     const img = e.target.files[0];
     if(!img) return;
-    setImage(URL.createObjectURL(img));    
+    setProfile(URL.createObjectURL(img));
     const formData = new FormData();    
     formData.append('profile', img);
     formData.append('email', JSON.parse(localStorage.getItem('token')).user.email);
@@ -24,10 +40,10 @@ function Profile() {
       <div className="profile-container">
         <div className="profile-picture">
           <img
-            src={image}
+            src={image || profile}
             alt="Profile"
             className="profile-img"
-          />
+          />          
           <input
             type="file"
             accept="image/*"
@@ -46,14 +62,15 @@ function Profile() {
           type="text"
           placeholder="Enter name"
           onChange={(e) => setName(e.target.value)}
-          value={JSON.parse(localStorage.getItem('token'))?.user.name || ''}
+          value={JSON.parse(localStorage.getItem('token')).user.name || ''}
         />
         <br />
         <br />
         <input
           type="text"
-          placeholder="Enter phone number"
-          onChange={(e) => setNumber(e.target.value)}
+          placeholder="Enter username"
+          onChange={(e) => setUsername(e.target.value)}
+          value={username}
         />
         <br />
         <br />

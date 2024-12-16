@@ -76,3 +76,16 @@ export const getProfile = async (email) => {
         return err.response;
     }
 }
+
+export const searchUsers = async (username) => {
+    try{
+        const response = await axios.get(`${API}/searchUsers`, {
+            params : {
+                username : username
+            }
+        });
+        return response;
+    }catch(err){
+        return err.response;
+    }
+}
