@@ -4,8 +4,17 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const { Server } = require('socket.io');
+const { createServer } = require('http');
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors : {
+        origin : 'http://localhost:5173/',
+        methods : ['GET','POST'],
+    },
+});
 
 app.use(cors());
 app.use(express.json());
@@ -20,6 +29,17 @@ const connectDB = async() => {
 }
 connectDB();
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
-})
+});
+
+io.on('connection', (socket) => {
+    console.log(`A user connected: ${socket.id}`);
+    socket.on('message', (data) => {
+        console.log(`Message received: `, data);
+        io.emit('message', data);
+    });
+    socket.on('disconnect', () => {
+        console.log(`A user disconnected: ${socket.id}`);
+    });
+});

@@ -11,23 +11,33 @@ exports.setProfile = async (req, res) => {
             { email : email },
             {$set : { profile : req.file.buffer }}
         );
-        res.status(200).json({message : "Profile picture updated successfully"});
+        return res.status(200).json({message : "Profile picture updated successfully"});
     }catch(err){
-        res.status(400).json({message : "Profile picture could not be updated"});
+        return res.status(400).json({message : "Profile picture could not be updated"});
     }
 };
 
 exports.getProfile = async (req, res) => {
     try{
         const { email } = req.query;
-        // console.log("Email = " + email);
+        console.log("Email = " + email);
         const user = await User.findOne({ email });
         // console.log(user.profile);
-        const img = `data:image/jpg;base64,${user.profile.data.toString('base64')}`;
-        console.log(img);
-        res.status(200).json({ profile : img });
-    }catch(err){
-        res.status(400).json({message : "No profile exists"});
-    }
+        const img = `data:image/jpeg;base64,${user.profile.toString('base64')}`;
+        // console.log(img);
 
+        return res.status(200).json({ profile : img });
+    }catch(err){
+        return res.status(400).json({message : "No profile exists"});
+    }
 };
+
+exports.searchUsers = async (req, res) => {
+    try{
+        const users = await User.find({ username : { $regex : req.query.username, $options : 'i'}});
+        // console.log(users);
+        return res.status(200).json({ users : users});
+    }catch(err){
+        return res.status(400).json({ message : 'No user found'});
+    }
+}
