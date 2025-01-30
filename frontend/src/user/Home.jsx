@@ -2,17 +2,18 @@ import Sidebar from "./Sidebar";
 import "../index.css";
 import { logout } from "./apiUser";
 import { io } from 'socket.io-client';
-import { API } from "../core/api";
+// import { API } from "../core/api";
 import { useEffect } from "react";
-const socket = io(`${API}`);
+const socket = io.connect(`http://localhost:8000`);
 
 function Home() {
   useEffect(() => {
+    socket.emit('message', {text : 'asd'});
     // socket.on('connect', () => {
       // console.log(`Socket conected`);
-      socket.on('message', (data) => {
-        console.log('Message received: ', data);
-      });
+      // socket.on('message', (data) => {
+      //   console.log('Message received: ', data);
+      // });
 
       return () => {
         socket.off('message');
