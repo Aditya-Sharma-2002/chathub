@@ -9,12 +9,6 @@ const { createServer } = require('http');
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-    cors : {
-        origin : 'http://localhost:5173/',
-        methods : ['GET','POST'],
-    },
-});
 
 app.use(cors());
 app.use(express.json());
@@ -29,8 +23,12 @@ const connectDB = async() => {
 }
 connectDB();
 
-httpServer.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+const io = new Server(httpServer, {
+    cors : {
+        origin : 'http://localhost:5173',
+        methods : ['GET','POST'],
+        credentials : true,
+    },
 });
 
 io.on('connection', (socket) => {
@@ -42,4 +40,8 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`A user disconnected: ${socket.id}`);
     });
+});
+
+httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
