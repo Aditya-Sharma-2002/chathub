@@ -38,6 +38,22 @@ exports.searchUsers = async (req, res) => {
         // console.log(users);
         return res.status(200).json({ users : users});
     }catch(err){
-        return res.status(400).json({ message : 'No user found'});
+        return res.status(400).json({ message : 'Some error occurred'});
+    }
+}
+
+exports.setNames = async (req, res) => {
+    try{
+        const user = await User.updateOne({ _id : req.body._id }, {
+            name : req.body.name,
+            username : req.body.username
+        });
+        console.log(user);
+        return res.status(200).json({
+            name : user.name,
+            username : user.username
+        });
+    }catch(err){
+        return res.status(400).json({ message : 'Some error occurred' });
     }
 }
