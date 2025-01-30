@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
-import { setProfile, getProfile } from "./apiUser";
+import { setProfile, getProfile, setNames } from "./apiUser";
 
 function Profile() {
   const [name, setName] = useState(JSON.parse(localStorage.getItem('token')).user.name);
@@ -22,6 +22,15 @@ function Profile() {
     // fetchProfile();
     // setImage(JSON.parse(localStorage.getItem('token')?.user.profile))
   // },[]);
+
+  async function handleForm(){
+    try{
+      const res = await setNames(name, username);
+      console.log(res);
+    }catch(err){
+      console.log(err);
+    }
+  }
 
   async function handleImage(e){
     const img = e.target.files[0];
@@ -74,7 +83,7 @@ function Profile() {
         />
         <br />
         <br />
-        <button>
+        <button onClick={handleForm}>
           <Link to="/home">Submit</Link>
         </button>
       </form>

@@ -1,28 +1,25 @@
 import { Link } from "react-router-dom";
 import "../index.css";
-import { getProfile, searchUsers } from "./apiUser";
-import { useState, useEffect } from "react";
+import { searchUsers } from "./apiUser";
+import { useState } from "react";
  
 function Sidebar() {
-  const [image, setImage] = useState(JSON.parse(localStorage.getItem('token')).user.profile || ''); //'https://via.placeholder.com/250'
+  const [image, setImage] = useState(JSON.parse(localStorage.getItem('token')).user.profile || 'https://via.placeholder.com/250');
+  const [searchResults, setSearchResults] = useState([]);
 
-  // useEffect(() => {
-  //   async function fetchProfile(){
-  //     const email = JSON.parse(localStorage.getItem('token')).user.email;
-  //     try{
-  //       const res = await getProfile(email);
-  //       if(res && res.data && res.data.profile)
-  //         setProfile(res.data.profile);        
-  //     }catch(err){
-  //       console.log(err);
-  //     }
-  //   }
-  //   fetchProfile();
-  // },[]);
-
-  function handleSearch(e){
-    console.log(e.target.value.trim());
-    searchUsers(e.target.value.trim());
+  async function handleSearch(e){    
+    const query = e.target.value.trim();
+    if(!query){
+      setSearchResults(['']);
+      console.log(searchResults);
+      return
+    }
+    try{
+      const res = await searchUsers(e.target.value.trim());
+      setSearchResults(res.data.users);
+    }catch(err){
+      console.log(err);
+    }    
   }
 
   return (
@@ -45,12 +42,16 @@ function Sidebar() {
       </div>
 
       {/* Sidebar Content */}
-      <div className="sidebar-body">
+      <div className="sidebar-body">                
         <ul>
-          <li>User 1</li>
-          <li>User 2</li>
-          <li>User 3</li>
-          <li>User 4</li>
+          {
+            searchResults.length > 0 ?
+            (
+              searchResults.map((user, index) => (
+                <li key={index}>{user.username}</li>
+              ))
+            ) : (<li>No friends connected 🥲</li>)
+          }
         </ul>        
       </div>
     </div>

@@ -89,3 +89,16 @@ export const searchUsers = async (username) => {
         return err.response;
     }
 }
+
+export const setNames = async (name, username) => {
+    try{
+        const response = axios.put(`${API}/setNames`, {
+            _id : JSON.parse(localStorage.getItem('token')).user._id,
+            name : name,
+            username : username
+        })
+        return response;
+    }catch(err){
+        return err.response;
+    }
+}
