@@ -60,7 +60,8 @@ exports.login = async (req, res) => {
           name: user.name,
           email: user.email,
           username: user.username || '',
-          profile : user.profile ? `data:image/jpeg;base64,${user.profile.toString('base64')}` : ''
+          profile : user.profile ? `data:image/jpeg;base64,${user.profile.toString('base64')}` : '',
+          friends : user.friends
         },
         token: user.generateToken(),
       });

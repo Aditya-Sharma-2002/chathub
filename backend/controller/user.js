@@ -1,3 +1,4 @@
+const user = require('../model/user');
 const User = require('../model/user');
 const multer = require('multer');
 
@@ -22,10 +23,7 @@ exports.getProfile = async (req, res) => {
         const { email } = req.query;
         console.log("Email = " + email);
         const user = await User.findOne({ email });
-        // console.log(user.profile);
         const img = `data:image/jpeg;base64,${user.profile.toString('base64')}`;
-        // console.log(img);
-
         return res.status(200).json({ profile : img });
     }catch(err){
         return res.status(400).json({message : "No profile exists"});
@@ -33,14 +31,21 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.searchUsers = async (req, res) => {
-    try{
-        const users = await User.find({ username : { $regex : req.query.username, $options : 'i'}});
-        // console.log(users);
-        return res.status(200).json({ users : users});
-    }catch(err){
-        return res.status(400).json({ message : 'Some error occurred'});
+    try {
+        let users = await User.find({ 
+            username: { $regex: req.query.username, $options: 'i' }
+        }).select('-email -hashed_password -salt -friends');
+
+        users = users.map(user => ({
+            ...user._doc,
+            profile: `data:image/jpeg;base64,${user.profile.toString('base64')}`
+        }));
+
+        return res.status(200).json({ users });
+    } catch (err) {
+        return res.status(400).json({ message: 'Some error occurred' });
     }
-}
+};
 
 exports.setNames = async (req, res) => {
     try{
