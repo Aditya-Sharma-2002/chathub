@@ -3,14 +3,15 @@ import "../index.css";
 import { searchUsers } from "./apiUser";
 import { useState } from "react";
  
-function Sidebar() {
+function Sidebar(props) {
   const [image, setImage] = useState(JSON.parse(localStorage.getItem('token')).user.profile || 'https://via.placeholder.com/250');
   const [searchResults, setSearchResults] = useState([]);
+
 
   async function handleSearch(e){    
     const query = e.target.value.trim();
     if(!query){
-      setSearchResults(['']);
+      setSearchResults([]);
       console.log(searchResults);
       return
     }
@@ -20,6 +21,10 @@ function Sidebar() {
     }catch(err){
       console.log(err);
     }    
+  }
+
+  function handleReceiver(user){
+     props.setReceiver(user);
   }
 
   return (
@@ -48,7 +53,15 @@ function Sidebar() {
             searchResults.length > 0 ?
             (
               searchResults.map((user, index) => (
-                <li key={index}>{user.username}</li>
+                <li key={index} onClick={() => handleReceiver(user)} style={{display : 'flex', alignItems : 'center'}}>
+                  <img
+                    src= {user.profile}
+                    alt="Profile"
+                    className="profile-icon"
+                    style={{marginRight : '8px'}}
+                  />
+                  <span onClick={() => {console.log(user);}}>{user.username}</span>
+                </li>
               ))
             ) : (<li>No friends connected 🥲</li>)
           }
