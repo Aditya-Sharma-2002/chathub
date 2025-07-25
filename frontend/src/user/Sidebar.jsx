@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import "../index.css";
+import "./Sidebar.css";
 import { searchUsers } from "./apiUser";
 import { useState } from "react";
  
-function Sidebar(props) {
+const Sidebar = (props) => {
   const [image, setImage] = useState(JSON.parse(localStorage.getItem('token')).user.profile || 'https://via.placeholder.com/250');
   const [searchResults, setSearchResults] = useState([]);
 
@@ -24,7 +24,8 @@ function Sidebar(props) {
   }
 
   function handleReceiver(user){
-     props.setReceiver(user);
+    props.setReceiver(user);
+    console.log(props.receiver);
   }
 
   return (
@@ -32,10 +33,10 @@ function Sidebar(props) {
       {/* Top Section with Image */}
       <div className="sidebar-header">
         <Link to="/home/profile" className="profile-btn">        
-          <img
+          <img          
             src= {image}
             alt="Profile"
-            className="profile-icon"
+            className="sidebar-logo"
           />
         </Link>
         <input
@@ -60,7 +61,7 @@ function Sidebar(props) {
                     className="profile-icon"
                     style={{marginRight : '8px'}}
                   />
-                  <span onClick={() => {console.log(user);}}>{user.username}</span>
+                  <span>{user.username}</span>
                 </li>
               ))
             ) : (<li>No friends connected 🥲</li>)

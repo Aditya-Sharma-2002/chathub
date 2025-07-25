@@ -1,0 +1,86 @@
+/* Neumorphic wrapper and container */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5vh;
+}
+
+.login-container h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Reuse Signup.css-style neumorphic box */
+.auth-box {
+  background: #e0e0e0;
+  padding: 30px 40px;
+  border-radius: 20px;
+  box-shadow: 9px 9px 16px #bebebe,
+              -9px -9px 16px #ffffff;
+  width: 90%;
+  max-width: 400px;
+}
+
+.auth-title {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 10px;
+  background: #e0e0e0;
+  box-shadow: inset 3px 3px 6px #bebebe,
+              inset -3px -3px 6px #ffffff;
+  font-size: 1rem;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 4px 4px 8px #bebebe,
+              -4px -4px 8px #ffffff;
+}
+
+.auth-button:hover {
+  background-color: #43a047;
+}
+
+.error-text {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.auth-links {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.auth-links a {
+  margin: 0 8px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}

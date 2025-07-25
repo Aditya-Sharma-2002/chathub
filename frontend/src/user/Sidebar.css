@@ -1,0 +1,103 @@
+/* Sidebar.css */
+.sidebar {
+  width: 300px;
+  height: 100vh;
+  padding: 1rem;
+  background: #e0e0e0;
+  box-shadow: inset 8px 8px 16px #bebebe, inset -8px -8px 16px #ffffff;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.profile-btn {
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+}
+
+.profile-icon {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 12px;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  outline: none;
+}
+
+.sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 1rem;
+}
+
+.sidebar-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-body li {
+  background: #e0e0e0;
+  margin-bottom: 12px;
+  padding: 10px 15px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+}
+
+.sidebar-body li:hover {
+  box-shadow: inset 2px 2px 6px #bebebe, inset -2px -2px 6px #ffffff;
+  transform: translateY(-1px);
+}
+
+.sidebar-body li span {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.sidebar-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 6px 6px 12px #bebebe, -6px -6px 12px #ffffff;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.sidebar-logo:hover {
+  transform: scale(1.05);
+  box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff;
+}
+
+.sidebar-body li img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  box-shadow: 2px 2px 4px #bebebe, -2px -2px 4px #ffffff;
+}

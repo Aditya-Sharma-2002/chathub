@@ -1,0 +1,123 @@
+body, html, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-color);
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-color);
+}
+
+.app-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow-y: hidden;
+}
+
+.chat-container {
+  margin: 2rem auto;
+  width: 95%;
+  max-width: 700px;
+  height: 91vh;
+  border-radius: var(--radius);
+  background: var(--bg-color);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+/* Header */
+.chat-header {
+  text-align: center;
+  font-size: 1.25rem;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-inset);
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+/* Chat Body */
+.chat-body {
+  flex-grow: 1;
+  overflow-y: auto;  
+  /* max-height: calc(100vh - 250px); */
+  padding: 1rem;
+  background-color: var(--bg-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-inset);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Individual Messages */
+.chat-message {
+  align-self: flex-start;
+  background-color: var(--bg-color);
+  padding: 0.75rem 1rem;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  max-width: 75%;
+  color: var(--text-color);
+  word-break: break-word;
+}
+
+.chat-message.sender {
+  align-self: flex-end;
+  background-color: var(--bg-color);
+}
+
+/* Input Section */
+.chat-input {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-inset);
+  background: var(--bg-color);
+  margin-top: 1rem;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  box-shadow: inset 3px 3px 6px #bec4d2, inset -3px -3px 6px #ffffff;
+  background: var(--bg-color);
+}
+
+.chat-input input:focus {
+  outline: none;
+  box-shadow: inset 2px 2px 4px #bec4d2, inset -2px -2px 4px #ffffff;
+}
+
+.chat-input button {
+  padding: 0.75rem 1.2rem;
+  font-size: 1rem;
+  border-radius: var(--radius);
+  background: var(--bg-color);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-color);
+  transition: box-shadow 0.3s ease;
+}
+
+.chat-input button:hover {
+  box-shadow: var(--shadow-inset);
+}
+
+/* Responsive */
+@media screen and (min-width: 768px) {
+  .chat-container {
+    width: 80%;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .chat-container {
+    width: 60%;
+  }
+}

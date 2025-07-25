@@ -1,0 +1,82 @@
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--primary-bg);
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-picture {
+  position: relative;
+}
+
+.profile-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 10px;
+  border-radius: 50%;
+  background: var(--primary-bg);
+  border: none;
+  cursor: pointer;
+  box-shadow: 5px 5px 15px var(--shadow-dark), -5px -5px 15px var(--shadow-light);
+}
+
+.edit-icon i {
+  font-size: 16px;
+  color: #333;
+}
+
+form {
+  margin-top: 20px;
+  text-align: center;
+}
+
+form input {
+  width: 80%;
+  padding: 10px 15px;
+  border-radius: var(--border-radius);
+  border: none;
+  margin-bottom: 15px;
+  background: var(--primary-bg);
+  box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+}
+
+form button {
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  border: none;
+  background: var(--primary-bg);
+  box-shadow: 5px 5px 15px var(--shadow-dark), -5px -5px 15px var(--shadow-light);
+  cursor: pointer;
+}
+
+form button:hover {
+  transform: scale(1.03);
+}
+
+@media (max-width: 768px) {
+  .profile-img {
+    width: 120px;
+    height: 120px;
+  }
+
+  form input {
+    width: 90%;
+  }
+}

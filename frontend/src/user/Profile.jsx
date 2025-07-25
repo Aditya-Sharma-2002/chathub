@@ -1,6 +1,7 @@
 import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import { setProfile, getProfile, setNames } from "./apiUser";
+import './Profile.css';
 
 function Profile() {
   const [name, setName] = useState(JSON.parse(localStorage.getItem('token')).user.name);
@@ -61,12 +62,12 @@ function Profile() {
             onChange={handleImage}
           />
           <button onClick={() => document.getElementById('upload').click()} className="edit-icon">
-            <i className="fa-solid fa-pencil"></i>{" "}
-            {/* Font Awesome Pencil Icon */}
+            <i className="fa-solid fa-camera"></i>{" "}
           </button>
         </div>
       </div>
       <form>
+        <label>Name</label>
         <input
           type="text"
           placeholder="Enter name"
@@ -75,6 +76,7 @@ function Profile() {
         />
         <br />
         <br />
+        <label>UserName</label>
         <input
           type="text"
           placeholder="Enter username"

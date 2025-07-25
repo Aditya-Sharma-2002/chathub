@@ -1,82 +1,101 @@
 import { useState } from 'react';
-import { Link } from "react-router-dom";
-import { emailValidator, passwordValidator } from '../core/validator'
+import { Link, useNavigate } from 'react-router-dom';
+import { emailValidator, passwordValidator } from '../core/validator';
 import { login } from './apiUser';
-import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
-function Login()
-{
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [formErrors, setFormErrors] = useState({});
-    const [touched, setTouched] = useState({});
-    const navigate = useNavigate();
-    const error = {};
-    const [status, setStatus] = useState('');
+function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [status, setStatus] = useState('');
+  const navigate = useNavigate();
 
-    function handleSubmit(e){
-        e.preventDefault();
+  const error = {};
 
-        emailValidator(email, error, setFormErrors)
-        passwordValidator(password, error, setFormErrors)
+  function handleSubmit(e) {
+    e.preventDefault();
+    emailValidator(email, error, setFormErrors);
+    passwordValidator(password, error, setFormErrors);
 
-        if(Object.keys(error).length === 0){
-            login(email, password).then(response => {                
-                if(response.status === 400){
-                    setStatus(response.response.data.message);
-                }                    
-                else {
-                    localStorage.setItem('token', JSON.stringify(response.data))
-                    navigate('/home')        
-                }
-            })
+    if (Object.keys(error).length === 0) {
+      login(email, password).then(response => {
+        if (response.status === 400) {
+          setStatus(response.response.data.message);
+        } else {
+          localStorage.setItem('token', JSON.stringify(response.data));
+          navigate('/home');
         }
-        else{
-            setFormErrors(error)
-            alert("Error still persists")
-        }
+      });
+    } else {
+      setFormErrors(error);
     }
+  }
 
-    function handleEmail(e){
-        setEmail(e.target.value)
-        if(touched.email)
-            emailValidator(email, formErrors, setFormErrors);            
+  function handleEmail(e) {
+    setEmail(e.target.value);
+    if (touched.email) {
+      emailValidator(e.target.value, formErrors, setFormErrors);
     }
+  }
 
-    function handlePassword(e){        
-        setPassword(e.target.value)
-        if(touched.password)
-            passwordValidator(password, formErrors, setFormErrors)
+  function handlePassword(e) {
+    setPassword(e.target.value);
+    if (touched.password) {
+      passwordValidator(e.target.value, formErrors, setFormErrors);
     }
+  }
 
-    function handleBlur(field, value) {
-        setTouched({ ...touched, [field]: true });
+  function handleBlur(field, value) {
+    setTouched({ ...touched, [field]: true });
+    if (field === 'email') emailValidator(value, formErrors, setFormErrors);
+    else if (field === 'password') passwordValidator(value, formErrors, setFormErrors);
+  }
 
-        if (field === 'email') {
-            emailValidator(value, formErrors, setFormErrors);
-        } else if (field === 'password') {
-            passwordValidator(value, formErrors, setFormErrors);
-        }
-    }
-
-    return(
-    <div className="container">
-        <h1>WELCOME</h1>
+  return (
+    <div className="login-container">
+      <h1>Welcome to ChatHub</h1>
+      <div className="auth-box neumorphic">
         <form onSubmit={handleSubmit}>
-            <label>Email</label><br/>
-            <input type="text" placeholder="Enter your email id" onChange={(e) => handleEmail(e)} onBlur={() => handleBlur('email')}/><br/>
-            <p style={{color: 'red'}}>{formErrors.email}</p>
+          <h2 className="auth-title">Log In</h2>
 
-            <label>Password</label><br/>
-            <input type="password" placeholder="Enter passsword" onChange={(e) => handlePassword(e)} onBlur={() => handleBlur('password')}/><br/>  
-            <p style={{color: 'red'}}>{formErrors.password}</p>
-            <button type="submit">Log In</button>
-            <p style={{color: 'red'}}>{status}</p>
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              className="auth-input"
+              type="text"
+              placeholder="Enter your email"
+              onChange={handleEmail}
+              onBlur={() => handleBlur('email', email)}
+            />
+            {formErrors.email && <span className="error-text">{formErrors.email}</span>}
+          </div>
 
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              className="auth-input"
+              type="password"
+              placeholder="Enter password"
+              onChange={handlePassword}
+              onBlur={() => handleBlur('password', password)}
+            />
+            {formErrors.password && <span className="error-text">{formErrors.password}</span>}
+          </div>
+
+          {status && <p className="error-text">{status}</p>}
+
+          <button type="submit" className="auth-button">Log In</button>
+
+          <div className="auth-links">
+            <Link to="/forgot" state={{ emailO: email }}>Forgot Password?</Link>
+            <Link to="/signup">Don't have an account?</Link>
+          </div>
         </form>
-        <button><Link to='/forgot' state={{emailO: email}}>Forgot Password</Link></button><br/><br/>
-        <button><Link to='/signup'>Don&apos;t have an account</Link></button>
+      </div>
     </div>
-)}
+  );
+}
 
 export default Login;
