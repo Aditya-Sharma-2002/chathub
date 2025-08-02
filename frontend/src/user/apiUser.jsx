@@ -59,7 +59,7 @@ export const setProfile = async (formData) => {
           });
         return response;
     }catch(err){
-        return err.response;
+        return `Error generated : ${err.response}`;
         // console.log(err);
     }
 }

@@ -1,48 +1,46 @@
-import { useState,useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { setProfile, getProfile, setNames } from "./apiUser";
+import { setProfile as uploadProfile, getProfile, setNames } from "./apiUser";
 import './Profile.css';
 
 function Profile() {
-  const [name, setName] = useState(JSON.parse(localStorage.getItem('token')).user.name);
-  const [username, setUsername] = useState(JSON.parse(localStorage.getItem('token')).user.username || '');
-  const [profile, setProfile] = useState(JSON.parse(localStorage.getItem('token')).user.profile || '');
-  const [image, setImage] = useState(JSON.parse(localStorage.getItem('token')).user.profile || 'https://via.placeholder.com/250');
+  const tokenUser = JSON.parse(localStorage.getItem('token')).user;
 
-  // useEffect(() => {
-    // async function fetchProfile(){
-    //   const email = JSON.parse(localStorage.getItem('token')).user.email;
-    //   try{
-    //     const res = await getProfile(email);
-    //     if(res && res.data && res.data.profile)
-    //       setProfile(res.data.profile);
-    //   }catch(err){
-    //     console.log(err);
-    //   }
-    // }
-    // fetchProfile();
-    // setImage(JSON.parse(localStorage.getItem('token')?.user.profile))
-  // },[]);
+  const [name, setName] = useState(tokenUser.name);
+  const [username, setUsername] = useState(tokenUser.username || '');
+  const [profile, setProfile] = useState(tokenUser.profile || '');
+  const [image, setImage] = useState(tokenUser.profile || 'https://via.placeholder.com/250');
 
-  async function handleForm(){
-    try{
+  async function handleForm(e) {
+    e.preventDefault(); // ✅ prevent page refresh
+    try {
       const res = await setNames(name, username);
       console.log(res);
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
   }
 
-  async function handleImage(e){
+  async function handleImage(e) {
     const img = e.target.files[0];
-    if(!img) return;
-    setProfile(URL.createObjectURL(img));
+    if (!img) return;
+
+    // Preview locally
+    setImage(URL.createObjectURL(img));
+
     const formData = new FormData();    
     formData.append('profile', img);
-    formData.append('email', JSON.parse(localStorage.getItem('token')).user.email);
-    setProfile(formData).then((response) => {
+    formData.append('email', tokenUser.email);
+
+    try {
+      const response = await uploadProfile(formData);
       console.log(response.data.message);
-    })
+
+      // update state with new profile from backend
+      setProfile(response.data.profile || image);
+    } catch (err) {
+      console.error("Error uploading profile:", err);
+    }
   }
 
   return (
@@ -61,33 +59,33 @@ function Profile() {
             style={{ display: "none" }}
             onChange={handleImage}
           />
-          <button onClick={() => document.getElementById('upload').click()} className="edit-icon">
-            <i className="fa-solid fa-camera"></i>{" "}
+          <button
+            type="button"
+            onClick={() => document.getElementById('upload').click()}
+            className="edit-icon"
+          >
+            <i className="fa-solid fa-camera"></i>
           </button>
         </div>
       </div>
-      <form>
+      <form onSubmit={handleForm}>
         <label>Name</label>
         <input
           type="text"
           placeholder="Enter name"
           onChange={(e) => setName(e.target.value)}
-          value={JSON.parse(localStorage.getItem('token')).user.name || ''}
+          value={name}
         />
-        <br />
-        <br />
-        <label>UserName</label>
+        <br /><br />
+        <label>Username</label>
         <input
           type="text"
           placeholder="Enter username"
           onChange={(e) => setUsername(e.target.value)}
           value={username}
         />
-        <br />
-        <br />
-        <button onClick={handleForm}>
-          <Link to="/home">Submit</Link>
-        </button>
+        <br /><br />
+        <button type="submit">Submit</button>
       </form>
     </div>
   );

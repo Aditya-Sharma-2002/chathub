@@ -1,6 +1,5 @@
 import Sidebar from "./Sidebar";
 import "./Home.css";
-import { logout } from "./apiUser";
 import { io } from 'socket.io-client';
 import { API } from "../core/api";
 import { useEffect, useState } from "react";
@@ -55,8 +54,7 @@ function Home() {
       </div>
     ) : (
       <div className="chat-container">
-        <p>Let's Chat 😊</p>
-        <button onClick={logout}>Logout</button>
+        <p>Let's Chat 😊</p>        
       </div>
     )}
   </div>

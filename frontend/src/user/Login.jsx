@@ -10,6 +10,7 @@ function Login() {
   const [formErrors, setFormErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [status, setStatus] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // 👈 new state
   const navigate = useNavigate();
 
   const error = {};
@@ -72,15 +73,28 @@ function Login() {
             {formErrors.email && <span className="error-text">{formErrors.email}</span>}
           </div>
 
-          <div className="form-group">
+          <div className="form-group password-group">
             <label>Password</label>
-            <input
-              className="auth-input"
-              type="password"
-              placeholder="Enter password"
-              onChange={handlePassword}
-              onBlur={() => handleBlur('password', password)}
-            />
+            <div className="password-wrapper">
+              <input
+                className="auth-input"
+                type={showPassword ? "text" : "password"} // 👈 toggle type
+                placeholder="Enter password"
+                onChange={handlePassword}
+                onBlur={() => handleBlur('password', password)}
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <i className="fa-solid fa-eye-slash"></i> // 👈 eye-slash icon
+                ) : (
+                  <i className="fa-solid fa-eye"></i>       // 👈 eye icon
+                )}
+              </button>
+            </div>
             {formErrors.password && <span className="error-text">{formErrors.password}</span>}
           </div>
 

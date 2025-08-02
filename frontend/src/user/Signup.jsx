@@ -10,6 +10,8 @@ function Signup() {
     const [password, setPassword] = useState('');
     const [repassword, setRepassword] = useState('');
     const [formErrors, setFormErrors] = useState({});
+    const [showPassword, setShowPassword] = useState(false);       // 👈 toggle for password
+    const [showRepassword, setShowRepassword] = useState(false);   // 👈 toggle for confirm password
     const navigate = useNavigate();
 
     function handleSubmit(e) {
@@ -58,21 +60,47 @@ function Signup() {
 
                 <label>
                     Password
-                    <input
-                        type='password'
-                        placeholder='Enter password'
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                    <div className="password-wrapper">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder='Enter password'
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button
+                            type="button"
+                            className="toggle-password"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? (
+                                <i className="fa-solid fa-eye-slash"></i>
+                            ) : (
+                                <i className="fa-solid fa-eye"></i>
+                            )}
+                        </button>
+                    </div>
                     {formErrors.password && <span className="error">{formErrors.password}</span>}
                 </label>
 
                 <label>
                     Confirm Password
-                    <input
-                        type='password'
-                        placeholder='Re-enter your password'
-                        onChange={(e) => setRepassword(e.target.value)}
-                    />
+                    <div className="password-wrapper">
+                        <input
+                            type={showRepassword ? "text" : "password"}
+                            placeholder='Re-enter your password'
+                            onChange={(e) => setRepassword(e.target.value)}
+                        />
+                        <button
+                            type="button"
+                            className="toggle-password"
+                            onClick={() => setShowRepassword(!showRepassword)}
+                        >
+                            {showRepassword ? (
+                                <i className="fa-solid fa-eye-slash"></i>
+                            ) : (
+                                <i className="fa-solid fa-eye"></i>
+                            )}
+                        </button>
+                    </div>
                     {formErrors.repassword && <span className="error">{formErrors.repassword}</span>}
                 </label>
 
