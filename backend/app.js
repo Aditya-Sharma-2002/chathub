@@ -6,12 +6,14 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const { Server } = require('socket.io');
 const { createServer } = require('http');
+const morgan = require('morgan');
 
 const app = express();
 const httpServer = createServer(app);
 
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'))
 
 app.use('/api',authRoutes);
 app.use('/api',userRoutes);
@@ -33,9 +35,9 @@ const io = new Server(httpServer, {
 
 io.on('connection', (socket) => {
     console.log(`A user connected: ${socket.id}`);
-    socket.on('message', ({room, message}) => {
-        console.log(`Message received: `, message);
-        io.to(room).emit('receiveMessage', message);
+    socket.on('message', ({senderId, receiverId, message}) => {
+        console.log(`Message from ${senderId} to ${receiverId}: `, message);
+        io.to(receiverId).emit('receiveMessage', message);
     });
     socket.on('disconnect', () => {
         console.log(`A user disconnected: ${socket.id}`);

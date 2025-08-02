@@ -1,65 +1,63 @@
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 const { ObjectId } = mongoose.Schema;
 
-const userSchema = new mongoose.Schema(
-    {
-        name : {
-            type : String,
-            trim : true,
-            required : true,
-            maxLength : 32
-        },
-        username : {
-            type : String,
-            trim : true,
-            maxLength : 32            
-        },
-        profile : {
-            type : Buffer,
-            contentType: String,
-            default: 'https://via.placeholder.com/250'
-        },
-        email : {
-            type : String,
-            trim : true,
-            required : true,
-            unique : true
-
-        },
-        hashed_password : {
-            type : String,
-            required : true
-        },
-        salt : {
-            type : String,
-            required : true
-        },
-        friends : [{
-            type : ObjectId
-        }],
-        chat : {
-            type : ObjectId,
-            ref : "Chat"
-        }
-    }, {timestamps : true}
-);
-
-userSchema.methods.generateToken = function(){
-
-    try{
-        return jwt.sign({
-            userId: this._id.toString(),
-            email: this.email
-        },
-    process.env.JWT_SECRET_KEY,
-    { expiresIn: '30m' } 
-    );
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        trim: true,
+        required: true,
+        maxLength: 32
+    },
+    username: {
+        type: String,
+        trim: true,
+        maxLength: 32,
+        unique: true,
+        sparse: true // allows some users to not have it
+    },
+    profile: {
+        type: String,
+        default: 'https://via.placeholder.com/250' // store URL instead of Buffer for better perf
+    },
+    email: {
+        type: String,
+        trim: true,
+        required: true,
+        unique: true
+    },
+    hashed_password: {
+        type: String,
+        required: true
+    },
+    salt: {
+        type: String,
+        required: true
+    },
+    friends: [{
+        type: ObjectId,
+        ref: 'User'
+    }],
+    chats: [{
+        type: ObjectId,
+        ref: 'Chat'
+    }],
+    lastSeen: {
+        type: Date,
+        default: Date.now
     }
-    catch(error)
-    {
-        console.log("Error in generatin token",error)
+}, { timestamps: true });
+
+userSchema.methods.generateToken = function () {
+    try {
+        return jwt.sign(
+            { userId: this._id.toString(), email: this.email },
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: '30m' }
+        );
+    } catch (error) {
+        console.log("Error generating token", error);
     }
-}
+};
 
 module.exports = mongoose.model('User', userSchema);
