@@ -1,10 +1,6 @@
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
-const mailjet = require('node-mailjet').apiConnect(
-  process.env.MJ_APIKEY_PUBLIC,
-  process.env.MJ_APIKEY_PRIVATE
-);
 
 encryptPassword = async (password) => {
   try {
@@ -19,13 +15,13 @@ encryptPassword = async (password) => {
 exports.signUp = async (req, res) => {
   try {
     console.log(req.body);
-    const { name, email, hashed_password } = req.body;
+    const { name, email, newPassword } = req.body;
     console.log(name);
-    const { hashedPassword, salt } = await encryptPassword(hashed_password);
+    const { hashedPassword, salt } = await encryptPassword(newPassword);
     const user = await new User({
       name: name,
       email: email,
-      hashed_password: hashedPassword,
+      hashedPassword: hashedPassword,
       salt: salt,
     });
     const savedUser = await user.save();
@@ -53,7 +49,7 @@ exports.login = async (req, res) => {
       console.log("User don't exist")
       return res.status(400).json({ message: "User don't exist"});
     }
-    const isMatched = await bcrypt.compare(password, user.hashed_password);
+    const isMatched = await bcrypt.compare(password, user.hashedPassword);
     if (!isMatched) {
       return res.status(400).json({ message: "Incorrect password" });
     } else {
@@ -76,52 +72,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// exports.forgot = async (req, res) => {
-//   try {
-//     const { email } = req.body;
-//     const user = await User.findOne({ email: email });
-//     if (!user) {
-//       return res.status(400).json({ message: "Invalid email entered" });
-//     } else {
-//       const otp = Math.floor(1000 + Math.random() * 9000);
-//       const mail = await sendMail(email, otp);
-//       return res
-//         .status(201)
-//         .json({ otp: otp, message: "Your OTP genrated successfully" });
-//     }
-//   } catch (error) {
-//     console.log("error", error);
-//     res.status(400).json({ message: "error in forgot password" });
-//   }
-// };
-
-// sendMail = (userEmail,otp) => {
-//     let transporter = nodemailer.createTransport({
-//         service: 'gmail',
-//         auth: {
-//             user: process.env.EMAIL,
-//             pass: process.env.PASSWORD,
-//         }
-//     });
-
-//     let mailOptions = {
-//         from: process.env.EMAIL,
-//         to: `${userEmail}`,
-//         subject: "OTP For SIGN UP",
-//         text: `Your OTP is ${otp}`
-//     };
-
-//     transporter.sendMail(mailOptions, function(err, info) {
-//         if(err){
-//             console.log(err);
-//             return;
-//         }
-
-//         console.log("Sent: " + info.response);
-//         return otp
-//     });
-// };
-
 exports.logout = (req, res) => {
   try{
     return res.status(201).json({message : "Logout successfull"})
@@ -137,48 +87,95 @@ function generateOTP() {
 }
 
 exports.forgot = async (req, res) => {
-  try {
+  try {    
     const { email } = req.body;
-
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
     }
 
+    const user = await User.findOne({ email });
+    if(!user)
+      return res.status(404).json({ error : "Email not found" })
+
     const otp = generateOTP();
 
-    // Send OTP mail
-    const request = mailjet
-      .post("send", { version: 'v3.1' })
-      .request({
-        Messages: [
-          {
-            From: {
-              Email: "adityasharma21902@gmail.com",
-              Name: "ChatHub Support"
-            },
-            To: [
-              {
-                Email: email,
-              }
-            ],
-            Subject: "Your OTP Code for Password Reset",
-            TextPart: `Your OTP code is ${otp}`,
-            HTMLPart: `<h3>Password Reset Request</h3>
-                       <p>Here is your OTP code:</p>
-                       <h2>${otp}</h2>
-                       `
-          }
-        ]
-      });
-{/* <p>This code will expire in 5 minutes.</p> */}
-    await request;
+    // Create transporter using Gmail + App Password
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER, // your Gmail address
+        pass: process.env.GMAIL_APP_PASS, // 16-digit app password
+      },
+    });
 
-    // Save OTP temporarily (you could also store in DB with expiry)
-    // For now, send to frontend for dev testing (remove in production)
+    // Mail options
+    const mailOptions = {
+      from: `"ChatHub Support" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: "Your OTP Code for Password Reset",
+      html: `
+        <div style="background: #e0e5ec; font-family: Arial, sans-serif; padding: 20px; text-align: center; min-height: 100vh; display: flex; justify-content: center; align-items: center;">
+        <div style="
+          background: #e0e5ec; 
+          box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+          border-radius: 20px;
+          padding: 30px;
+          max-width: 500px;
+          width: 100%;
+        ">
+          <h2 style="color: #333; margin-bottom: 20px;">Password Reset Request</h2>
+          <p style="font-size: 16px; color: #555; margin-bottom: 30px;">
+            Use the OTP below to reset your password. This code is valid for <b>5 minutes</b>.
+          </p>
+          <div style="
+            background: #e0e5ec;
+            box-shadow: inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            color: #333;
+            display: inline-block;
+            margin-bottom: 30px;
+          ">
+            ${otp}
+          </div>
+          <p style="font-size: 14px; color: #777;">
+            If you did not request this, please ignore this email.
+          </p>
+        </div>
+      </div>
+      `,
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+
     return res.status(200).json({ message: "OTP sent successfully", otp });
 
   } catch (err) {
-    console.error("Mailjet error:", err.message || err);
+    console.error("Nodemailer error:", err.message || err);
     return res.status(500).json({ error: "Failed to send OTP" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    console.log(email, newPassword);
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const { hashedPassword, salt } = await encryptPassword(newPassword);
+    user.hashedPassword = hashedPassword;
+    user.salt = salt;
+
+    await user.save();
+
+    return res.status(200).json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    return res.status(500).json({ error: "Failed to reset password" });
   }
 };

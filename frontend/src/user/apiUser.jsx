@@ -18,7 +18,7 @@ export const signup = async (name,email,password) => {
         const response = await axios.post(`${API}/signup`,{
             name: name,
             email: email,
-            hashed_password: password
+            hashedPassword: password
         })
         return response;
     }
@@ -29,13 +29,20 @@ export const signup = async (name,email,password) => {
 
 export const forgot = async (email) => {
     try{
-        const response = await axios.post(`${API}/forgot`, {
-            email: email
-        })
-        return response;
+        const response = await axios.post(`${API}/forgot`, { email });
+        return response.data;
     }    
     catch(err){
-        console.log(err)
+        return err.response;
+    }
+}
+
+export const resetPassword = async (email, newPassword) => {
+    try{
+        const response = await axios.post(`${API}/resetPassword`,{ email, newPassword })
+        return response.data;
+    }catch(err){
+        return err.response;
     }
 }
 
@@ -54,13 +61,13 @@ export const setProfile = async (formData) => {
     try{
         const response = await axios.post(`${API}/profile`, formData, {
             headers: {
-              'Content-Type': 'multipart/form-data', // Ensure proper content type for file upload
+              'Content-Type': 'multipart/form-data',
             },
           });
         return response;
     }catch(err){
         return `Error generated : ${err.response}`;
-        // console.log(err);
+
     }
 }
 

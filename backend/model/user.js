@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    hashed_password: {
+    hashedPassword: {
         type: String,
         required: true
     },

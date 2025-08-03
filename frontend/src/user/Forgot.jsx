@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { forgot } from './apiUser';
+import { forgot, resetPassword } from './apiUser';
 import { emailValidator, passwordValidator } from '../core/validator';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import './Forgot.css';
 
 function Forgot() {
-    const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [password, setPassword] = useState('');
     const [repassword, setRepassword] = useState('');
     const [serverOTP, setServerOTP] = useState('');
-    const [step, setStep] = useState(1); // 1: email, 2: otp, 3: new password
+    const [step, setStep] = useState(1);
     const [formErrors, setFormErrors] = useState({});
     const location = useLocation();
     const { emailO } = location.state || {};
+    const [email, setEmail] = useState(emailO || '');
+    const navigate = useNavigate();
 
     async function handleGetOTP(e) {
         e.preventDefault();
@@ -26,9 +27,15 @@ function Forgot() {
         }
 
         const response = await forgot(email);
-        if (response && response.otp) {
+
+        if (response?.error) {
+            setFormErrors({ email: response.data.error });
+            return;
+        }
+
+        if (response?.otp) {
             setServerOTP(response.otp);
-            setStep(2); // move to OTP step
+            setStep(2);
         } else {
             setFormErrors({ email: "Failed to send OTP" });
         }
@@ -40,24 +47,37 @@ function Forgot() {
             setFormErrors({ otp: "Invalid OTP" });
             return;
         }
-        setStep(3); // move to password reset step
+        setStep(3);
     }
 
-    function handlePasswordSubmit(e) {
-        e.preventDefault();
-        const errors = {};
-        passwordValidator(password, errors, setFormErrors);
+    async function handlePasswordSubmit(e) {
+    e.preventDefault();
+    const errors = {};
+    passwordValidator(password, errors, setFormErrors);
 
-        if (password !== repassword) {
-            errors.repassword = "Passwords do not match";
-        }
+    if (password !== repassword) {
+        errors.repassword = "Passwords do not match";
+    }
 
-        setFormErrors(errors);
+    setFormErrors(errors);
 
-        if (Object.keys(errors).length === 0) {
-            console.log("Password reset successful!");
+    if (Object.keys(errors).length === 0) {
+        try {
+            const response = await resetPassword(email, password);
+
+            if (response.data?.error) {
+                setFormErrors({ password: response.data.error });
+            } else {
+                alert("Password reset successful!");
+                console.log("Password reset successful!");
+                navigate('/');
+            }
+        } catch (err) {
+            console.error("Reset Password Error:", err);
+            setFormErrors({ password: err.response?.data?.error || "Failed to reset password" });
         }
     }
+}
 
     return (
         <div className="forgot-container">
@@ -73,9 +93,8 @@ function Forgot() {
                                     className="auth-input"
                                     type="email"
                                     placeholder="Enter your email"
-                                    defaultValue={emailO || ''}
+                                    value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    disabled
                                 />
                                 {formErrors.email && <span className="error-text">{formErrors.email}</span>}
                             </div>
