@@ -6,28 +6,37 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 exports.setProfile = async (req, res) => {
-    try{        
-        const { email } = req.body;
-        await User.updateOne(
-            { email : email },
-            {$set : { profile : req.file.buffer }}
-        );
-        return res.status(200).json({message : "Profile picture updated successfully"});
-    }catch(err){
-        return res.status(400).json({message : "Profile picture could not be updated"});
-    }
+  try {
+    const { email } = req.body;
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    
+    await User.updateOne(
+      { email: email },
+      { $set: { profile: base64Image } }
+    );
+
+    return res.status(200).json({
+      message: "Profile picture updated successfully",
+      profile: base64Image
+    });
+  } catch (err) {
+    return res.status(400).json({ message: "Profile picture could not be updated" });
+  }
 };
 
 exports.getProfile = async (req, res) => {
-    try{
-        const { email } = req.query;
-        console.log("Email = " + email);
-        const user = await User.findOne({ email });
-        const img = `data:image/jpeg;base64,${user.profile.toString('base64')}`;
-        return res.status(200).json({ profile : img });
-    }catch(err){
-        return res.status(400).json({message : "No profile exists"});
+  try {
+    const { email } = req.query;
+    const user = await User.findOne({ email });
+
+    if (!user || !user.profile) {
+      return res.status(404).json({ message: "No profile exists" });
     }
+
+    return res.status(200).json({ profile: user.profile });
+  } catch (err) {
+    return res.status(400).json({ message: "No profile exists" });
+  }
 };
 
 exports.searchUsers = async (req, res) => {
@@ -38,7 +47,7 @@ exports.searchUsers = async (req, res) => {
 
         users = users.map(user => ({
             ...user._doc,
-            profile: `data:image/jpeg;base64,${user.profile.toString('base64')}`
+            profile: `${user.profile.toString('base64')}`
         }));
 
         return res.status(200).json({ users });

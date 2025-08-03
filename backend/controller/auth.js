@@ -1,6 +1,10 @@
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const mailjet = require('node-mailjet').apiConnect(
+  process.env.MJ_APIKEY_PUBLIC,
+  process.env.MJ_APIKEY_PRIVATE
+);
 
 encryptPassword = async (password) => {
   try {
@@ -60,7 +64,7 @@ exports.login = async (req, res) => {
           name: user.name,
           email: user.email,
           username: user.username || '',
-          profile : user.profile ? `data:image/jpeg;base64,${user.profile.toString('base64')}` : '',
+          profile : user.profile ? `${user.profile.toString('base64')}` : '',
           friends : user.friends
         },
         token: user.generateToken(),
@@ -72,51 +76,51 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.forgot = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email: email });
-    if (!user) {
-      return res.status(400).json({ message: "Invalid email entered" });
-    } else {
-      const otp = Math.floor(1000 + Math.random() * 9000);
-      const mail = await sendMail(email, otp);
-      return res
-        .status(201)
-        .json({ otp: otp, message: "Your OTP genrated successfully" });
-    }
-  } catch (error) {
-    console.log("error", error);
-    res.status(400).json({ message: "error in forgot password" });
-  }
-};
+// exports.forgot = async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     const user = await User.findOne({ email: email });
+//     if (!user) {
+//       return res.status(400).json({ message: "Invalid email entered" });
+//     } else {
+//       const otp = Math.floor(1000 + Math.random() * 9000);
+//       const mail = await sendMail(email, otp);
+//       return res
+//         .status(201)
+//         .json({ otp: otp, message: "Your OTP genrated successfully" });
+//     }
+//   } catch (error) {
+//     console.log("error", error);
+//     res.status(400).json({ message: "error in forgot password" });
+//   }
+// };
 
-sendMail = (userEmail,otp) => {
-    let transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL,
-            pass: process.env.PASSWORD,
-        }
-    });
+// sendMail = (userEmail,otp) => {
+//     let transporter = nodemailer.createTransport({
+//         service: 'gmail',
+//         auth: {
+//             user: process.env.EMAIL,
+//             pass: process.env.PASSWORD,
+//         }
+//     });
 
-    let mailOptions = {
-        from: process.env.EMAIL,
-        to: `${userEmail}`,
-        subject: "OTP For SIGN UP",
-        text: `Your OTP is ${otp}`
-    };
+//     let mailOptions = {
+//         from: process.env.EMAIL,
+//         to: `${userEmail}`,
+//         subject: "OTP For SIGN UP",
+//         text: `Your OTP is ${otp}`
+//     };
 
-    transporter.sendMail(mailOptions, function(err, info) {
-        if(err){
-            console.log(err);
-            return;
-        }
+//     transporter.sendMail(mailOptions, function(err, info) {
+//         if(err){
+//             console.log(err);
+//             return;
+//         }
 
-        console.log("Sent: " + info.response);
-        return otp
-    });
-};
+//         console.log("Sent: " + info.response);
+//         return otp
+//     });
+// };
 
 exports.logout = (req, res) => {
   try{
@@ -124,5 +128,57 @@ exports.logout = (req, res) => {
   }catch(err){
     console.log(err);
     return res.status(400).json({message: "Logout unsuccessfull"})
+  }
+};
+
+// Generate random 6-digit OTP
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+exports.forgot = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const otp = generateOTP();
+
+    // Send OTP mail
+    const request = mailjet
+      .post("send", { version: 'v3.1' })
+      .request({
+        Messages: [
+          {
+            From: {
+              Email: "adityasharma21902@gmail.com",
+              Name: "ChatHub Support"
+            },
+            To: [
+              {
+                Email: email,
+              }
+            ],
+            Subject: "Your OTP Code for Password Reset",
+            TextPart: `Your OTP code is ${otp}`,
+            HTMLPart: `<h3>Password Reset Request</h3>
+                       <p>Here is your OTP code:</p>
+                       <h2>${otp}</h2>
+                       `
+          }
+        ]
+      });
+{/* <p>This code will expire in 5 minutes.</p> */}
+    await request;
+
+    // Save OTP temporarily (you could also store in DB with expiry)
+    // For now, send to frontend for dev testing (remove in production)
+    return res.status(200).json({ message: "OTP sent successfully", otp });
+
+  } catch (err) {
+    console.error("Mailjet error:", err.message || err);
+    return res.status(500).json({ error: "Failed to send OTP" });
   }
 };

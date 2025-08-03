@@ -7,6 +7,8 @@ const userRoutes = require('./routes/userRoutes');
 const { Server } = require('socket.io');
 const { createServer } = require('http');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const { error } = require('console');
 
 const app = express();
 const httpServer = createServer(app);
@@ -42,6 +44,14 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`A user disconnected: ${socket.id}`);
     });
+});
+
+const otpLimiter = rateLimit({
+    windowMs: 15*60*1000,
+    max: 3,
+    message: {
+        error: "Too many OTP requests from this IP, please try again after 15 minutes."
+    }
 });
 
 httpServer.listen(port, () => {
