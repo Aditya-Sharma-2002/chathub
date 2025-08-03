@@ -1,4 +1,87 @@
-.error {
-    color: red;
-    font-size: 0.9rem;
+:root {
+  --primary-bg: #e0e0e0;
+  --shadow-light: #ffffff;
+  --shadow-dark: #bebebe;
+  --radius: 20px;
+  --text-color: #333;
+}
+
+.forgot-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: var(--primary-bg);
+}
+
+.forgot-box {
+  width: 400px;
+  padding: 2rem;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+  text-align: center;
+}
+
+.forgot-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: var(--text-color);
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+
+.auth-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--primary-bg);
+  box-shadow: inset 4px 4px 8px var(--shadow-dark),
+              inset -4px -4px 8px var(--shadow-light);
+  font-size: 1rem;
+  color: var(--text-color);
+  outline: none;
+}
+
+.auth-input:focus {
+  box-shadow: inset 2px 2px 4px var(--shadow-dark),
+              inset -2px -2px 4px var(--shadow-light);
+}
+
+.auth-button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 1rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 6px 6px 12px var(--shadow-dark),
+              -6px -6px 12px var(--shadow-light);
+  transition: transform 0.2s ease;
+}
+
+.auth-button:hover {
+  transform: scale(1.02);
+  box-shadow: inset 4px 4px 8px var(--shadow-dark),
+              inset -4px -4px 8px var(--shadow-light);
+}
+
+.error-text {
+  display: block;
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 5px;
 }

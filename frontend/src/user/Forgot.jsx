@@ -1,115 +1,139 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { forgot } from './apiUser';
 import { emailValidator, passwordValidator } from '../core/validator';
 import { useLocation } from "react-router-dom";
+import './Forgot.css';
 
 function Forgot() {
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [password, setPassword] = useState('');
     const [repassword, setRepassword] = useState('');
-    const [serverOTP, setServerOTP] = useState(''); // for storing OTP from server
-    const [active, setActive] = useState(false);
+    const [serverOTP, setServerOTP] = useState('');
+    const [step, setStep] = useState(1); // 1: email, 2: otp, 3: new password
     const [formErrors, setFormErrors] = useState({});
     const location = useLocation();
     const { emailO } = location.state || {};
 
-    useEffect(() => {
-        if (email.length > 0 && otp.length > 0 && password === repassword && password.length > 0) {
-            setActive(true);
-        } else {
-            setActive(false);
-        }
-    }, [email, otp, password, repassword]);
-
-    function handleSubmit(e) {
+    async function handleGetOTP(e) {
         e.preventDefault();
-
         const errors = {};
+        emailValidator(email, errors, setFormErrors);
 
-        // validate all fields
-        emailValidator(email, formErrors, (newErrors) => Object.assign(errors, newErrors));
-        passwordValidator(password, formErrors, (newErrors) => Object.assign(errors, newErrors));
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+
+        const response = await forgot(email);
+        if (response && response.otp) {
+            setServerOTP(response.otp);
+            setStep(2); // move to OTP step
+        } else {
+            setFormErrors({ email: "Failed to send OTP" });
+        }
+    }
+
+    function handleOTPSubmit(e) {
+        e.preventDefault();
+        if (otp !== serverOTP) {
+            setFormErrors({ otp: "Invalid OTP" });
+            return;
+        }
+        setStep(3); // move to password reset step
+    }
+
+    function handlePasswordSubmit(e) {
+        e.preventDefault();
+        const errors = {};
+        passwordValidator(password, errors, setFormErrors);
 
         if (password !== repassword) {
             errors.repassword = "Passwords do not match";
         }
 
-        if (otp !== serverOTP) {
-            errors.otp = "Invalid OTP";
-        }
-
         setFormErrors(errors);
 
         if (Object.keys(errors).length === 0) {
-            console.log("Success: Ready to call password reset API");
-            // API call here...
-        }
-    }
-
-    async function getOTP(e) {
-        e.preventDefault();
-        const response = await forgot(email);
-        if (response && response.otp) {
-            setServerOTP(response.otp);
-            console.log("OTP sent:", response.otp);
-        } else {
-            setFormErrors({ email: response.error || "Failed to send OTP" });
+            console.log("Password reset successful!");
         }
     }
 
     return (
-        <div className="container">
-            <form onSubmit={handleSubmit}>
-                {!active ? (
-                    <>
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            placeholder="Enter email"
-                            defaultValue={emailO || ''}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                        {formErrors.email && <p className="error">{formErrors.email}</p>}
-                        <br /><br />
-                    </>
-                ) : (
-                    <>
-                        <label>Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            disabled
-                        />
-                        <br /><br />
-                    </>
-                )}
+        <div className="forgot-container">
+            <div className="forgot-box neumorphic">
+                <h2 className="forgot-title">Forgot Password</h2>
 
-                {active && (
-                    <>
-                        <label>OTP</label>
-                        <input type="text" placeholder="Enter OTP" onChange={(e) => setOtp(e.target.value)} />
-                        {formErrors.otp && <p className="error">{formErrors.otp}</p>}
-                        <br /><br />
+                <form>
+                    {step === 1 && (
+                        <>
+                            <div className="form-group">
+                                <label>Email</label>
+                                <input
+                                    className="auth-input"
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    defaultValue={emailO || ''}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    disabled
+                                />
+                                {formErrors.email && <span className="error-text">{formErrors.email}</span>}
+                            </div>
+                            <button className="auth-button" onClick={handleGetOTP}>
+                                Send OTP
+                            </button>
+                        </>
+                    )}
 
-                        <label>New Password</label>
-                        <input type="password" placeholder="Enter new password" onChange={(e) => setPassword(e.target.value)} />
-                        {formErrors.password && <p className="error">{formErrors.password}</p>}
-                        <br /><br />
+                    {step === 2 && (
+                        <>
+                            <div className="form-group">
+                                <label>OTP</label>
+                                <input
+                                    className="auth-input"
+                                    type="text"
+                                    placeholder="Enter OTP"
+                                    onChange={(e) => setOtp(e.target.value)}
+                                />
+                                {formErrors.otp && <span className="error-text">{formErrors.otp}</span>}
+                            </div>
+                            <button className="auth-button" onClick={handleOTPSubmit}>
+                                Verify OTP
+                            </button>
+                        </>
+                    )}
 
-                        <label>Re-enter Password</label>
-                        <input type="password" placeholder="Re-enter your password" onChange={(e) => setRepassword(e.target.value)} />
-                        {formErrors.repassword && <p className="error">{formErrors.repassword}</p>}
-                        <br /><br />
-                    </>
-                )}
+                    {step === 3 && (
+                        <>
+                            <div className="form-group">
+                                <label>New Password</label>
+                                <input
+                                    className="auth-input"
+                                    type="password"
+                                    placeholder="Enter new password"
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                                {formErrors.password && <span className="error-text">{formErrors.password}</span>}
+                            </div>
 
-                {active ? (
-                    <button type="submit">Change Password</button>
-                ) : (
-                    <button onClick={getOTP}>Send OTP</button>
-                )}
-            </form>
+                            <div className="form-group">
+                                <label>Confirm Password</label>
+                                <input
+                                    className="auth-input"
+                                    type="password"
+                                    placeholder="Re-enter your password"
+                                    onChange={(e) => setRepassword(e.target.value)}
+                                />
+                                {formErrors.repassword && <span className="error-text">{formErrors.repassword}</span>}
+                            </div>
+
+                            <button className="auth-button" onClick={handlePasswordSubmit}>
+                                Reset Password
+                            </button>
+                        </>
+                    )}
+                </form>
+            </div>
         </div>
     );
 }

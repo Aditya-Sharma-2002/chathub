@@ -29,7 +29,7 @@ export const signup = async (name,email,password) => {
 
 export const forgot = async (email) => {
     try{
-        const response = await axios.get(`${API}/forgot`, {
+        const response = await axios.post(`${API}/forgot`, {
             email: email
         })
         return response;
