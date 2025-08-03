@@ -5,9 +5,10 @@ import { searchUsers, logout } from "./apiUser";
 
 const Sidebar = (props) => {
   const [image, setImage] = useState(
-    JSON.parse(localStorage.getItem("token")).user.profile || "https://via.placeholder.com/250"
+    JSON.parse(localStorage.getItem("token")).user.profile
   );
   const [searchResults, setSearchResults] = useState([]);
+  const [searchName, setSearchName] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   const [collapsed, setCollapsed] = useState(true);
 
@@ -24,6 +25,7 @@ const Sidebar = (props) => {
 
   async function handleSearch(e) {
     const query = e.target.value.trim();
+    setSearchName(query);
     if (!query) return setSearchResults([]);
     try {
       const res = await searchUsers(query);
@@ -35,6 +37,8 @@ const Sidebar = (props) => {
 
   function handleReceiver(user) {
     props.setReceiver(user);
+    setSearchResults([]);
+    setSearchName('');
   }
 
   return (
@@ -55,6 +59,7 @@ const Sidebar = (props) => {
           </Link>
           <input
             type="text"
+            value={searchName}
             className="search-bar"
             placeholder="Looking for someone?"
             onChange={handleSearch}

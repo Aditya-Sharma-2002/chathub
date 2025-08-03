@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { setProfile as uploadProfile, getProfile, setNames } from "./apiUser";
+import { Link, useNavigate } from "react-router-dom";
+import { setProfile as uploadProfile, setNames } from "./apiUser";
 import './Profile.css';
 
 function Profile() {
@@ -8,14 +8,18 @@ function Profile() {
 
   const [name, setName] = useState(tokenUser.name);
   const [username, setUsername] = useState(tokenUser.username || '');
-  const [profile, setProfile] = useState(tokenUser.profile || '');
-  const [image, setImage] = useState(tokenUser.profile || 'https://via.placeholder.com/250');
+  const [profile, setProfile] = useState(tokenUser.profile);
+  const navigate = useNavigate();
 
   async function handleForm(e) {
-    e.preventDefault(); // ✅ prevent page refresh
+    e.preventDefault();
     try {
-      const res = await setNames(name, username);
-      console.log(res);
+      await setNames(name, username);
+      const token = JSON.parse(localStorage.getItem('token'));
+      token.user.name = name;
+      token.user.username = username;
+      localStorage.setItem('token', JSON.stringify(token));
+      navigate('/home');
     } catch (err) {
       console.log(err);
     }
@@ -25,19 +29,25 @@ function Profile() {
     const img = e.target.files[0];
     if (!img) return;
 
-    // Preview locally
-    setImage(URL.createObjectURL(img));
+    // Show preview immediately
+    const previewUrl = URL.createObjectURL(img);
+    setProfile(previewUrl);
 
-    const formData = new FormData();    
+    const formData = new FormData();
     formData.append('profile', img);
     formData.append('email', tokenUser.email);
 
     try {
       const response = await uploadProfile(formData);
-      console.log(response.data.message);
+      if (response.data.profile) {
+        // Update from backend (base64 or URL)
+        setProfile(response.data.profile);
 
-      // update state with new profile from backend
-      setProfile(response.data.profile || image);
+        // Update token in localStorage
+        const token = JSON.parse(localStorage.getItem('token'));
+        token.user.profile = response.data.profile;
+        localStorage.setItem('token', JSON.stringify(token));
+      }
     } catch (err) {
       console.error("Error uploading profile:", err);
     }
@@ -48,10 +58,10 @@ function Profile() {
       <div className="profile-container">
         <div className="profile-picture">
           <img
-            src={image || profile}
+            src={profile}
             alt="Profile"
             className="profile-img"
-          />          
+          />
           <input
             type="file"
             accept="image/*"
