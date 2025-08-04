@@ -14,7 +14,10 @@ const Chat = require('./model/chat');
 const app = express();
 const httpServer = createServer(app);
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN,
+  credentials: true
+}));
 app.use(express.json());
 app.use(morgan('dev'))
 
@@ -31,7 +34,7 @@ connectDB();
 
 const io = new Server(httpServer, {
     cors : {
-        origin : 'http://localhost:5173',
+        origin : process.env.CLIENT_ORIGIN,
         methods : ['GET','POST'],
         credentials : true,
     },
