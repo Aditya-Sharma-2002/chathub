@@ -37,8 +37,10 @@ const Sidebar = (props) => {
 
   function handleReceiver(user) {
     props.setReceiver(user);
+    props.setReceiverId(user._id);
     setSearchResults([]);
     setSearchName('');
+    console.log(user, user._id);
   }
 
   return (

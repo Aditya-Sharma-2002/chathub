@@ -27,15 +27,30 @@ export const signup = async (name,email,password) => {
     }
 }
 
-export const forgot = async (email) => {
+/*export const forgot = async (email) => {
     try{
         const response = await axios.post(`${API}/forgot`, { email });
         return response.data;
     }    
     catch(err){
+        // console.log(err.response.data);
+        if(err.response.data.error)
+            return err.response
         return err.response;
     }
-}
+}*/
+
+export const forgot = async (email) => {
+  try {
+    const response = await axios.post(`${API}/forgot`, { email });
+    return response.data; // expected { message, otp }
+  } catch (err) {
+    return {
+      error: err.response?.data?.error || "Something went wrong",
+      status: err.response?.status || 500
+    };
+  }
+};
 
 export const resetPassword = async (email, newPassword) => {
     try{
@@ -109,3 +124,34 @@ export const setNames = async (name, username) => {
         return err.response;
     }
 }
+
+export const fetchMessages = async (chatId, page = 1, limit = 20) => {
+  try {
+    const response = await axios.get(`${API}/messages/${chatId}`, {
+      params: { page, limit }
+    });
+    return response.data;  // expected { messages, hasMore }
+  } catch (err) {
+    return {
+      error: err.response?.data?.error || "Failed to fetch messages",
+      status: err.response?.status || 500
+    };
+  }
+};
+
+export const sendMessage = async (senderId, receiverId, text) => {
+  try {
+    console.log(`Sending message ${text}`);
+    const response = await axios.post(`${API}/messages`, {
+      senderId,
+      receiverId,
+      text
+    });
+    return response.data; // expected { message }
+  } catch (err) {
+    return {
+      error: err.response?.data?.error || "Failed to send message",
+      status: err.response?.status || 500
+    };
+  }
+};
