@@ -1,6 +1,7 @@
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const rateLimit = require('express-rate-limit');
 
 encryptPassword = async (password) => {
   try {
@@ -179,3 +180,11 @@ exports.resetPassword = async (req, res) => {
     return res.status(500).json({ error: "Failed to reset password" });
   }
 };
+
+exports.otpLimiter = rateLimit({
+    windowMs: 15*60*1000,
+    max: 3,
+    message: {
+        error: "Too many OTP requests from this IP, please try again after 15 minutes."
+    }
+});
