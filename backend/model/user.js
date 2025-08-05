@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     friends: [{
-        type: ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
     chats: [{

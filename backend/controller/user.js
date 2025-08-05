@@ -71,3 +71,18 @@ exports.setNames = async (req, res) => {
         return res.status(400).json({ message : 'Some error occurred' });
     }
 }
+
+exports.getFriends = async (req, res) => {
+  try {
+    const { userId } = req.query; 
+    const user = await User.findById(userId)
+      .populate("friends", "name username profile");
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({ friends: user.friends });
+  } catch (err) {
+    console.error("Get Friends Error:", err);
+    res.status(500).json({ error: "Failed to fetch friends" });
+  }
+};

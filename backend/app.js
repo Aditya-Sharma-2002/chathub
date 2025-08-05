@@ -10,6 +10,7 @@ const { createServer } = require('http');
 const morgan = require('morgan');
 const Message = require('./model/message');
 const Chat = require('./model/chat');
+const chatController = require('./controller/chat');
 
 const app = express();
 const httpServer = createServer(app);
@@ -19,7 +20,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(morgan('dev'))
+app.use(morgan('dev'));
 
 app.use('/api',authRoutes);
 app.use('/api',userRoutes);
@@ -34,18 +35,20 @@ connectDB();
 
 const io = new Server(httpServer, {
     cors : {
-        origin : process.env.CLIENT_ORIGIN,
+        origin : "*",
         methods : ['GET','POST'],
         credentials : true,
     },
 });
+
+chatController.initIO(io);
 
 io.on('connection', (socket) => {
   console.log(`A user connected: ${socket.id}`);
 
   // join a user's room
   socket.on('join', (userId) => {
-    socket.join(userId);
+    socket.join(userId);    
     console.log(`User ${userId} joined their room`);
   });
 
