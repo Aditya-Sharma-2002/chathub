@@ -140,8 +140,7 @@ export const fetchMessages = async (chatId, page = 1, limit = 20) => {
 };
 
 export const sendMessage = async (senderId, receiverId, text) => {
-  try {
-    console.log(`Sending message ${text}`);
+  try {    
     const response = await axios.post(`${API}/messages`, {
       senderId,
       receiverId,
@@ -154,4 +153,15 @@ export const sendMessage = async (senderId, receiverId, text) => {
       status: err.response?.status || 500
     };
   }
+};
+
+export const getFriends = async (userId) => {
+    try {
+        const res = await axios.get(`${API}/friends`, {
+            params: { userId }
+        });
+        return res;
+    } catch (err) {
+        console.log("Failed to load friends:", err);
+    }
 };

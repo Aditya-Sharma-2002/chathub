@@ -3,22 +3,32 @@ import "./Home.css";
 import { io } from "socket.io-client";
 import { API } from "../core/api";
 import { useEffect, useState, useRef } from "react";
-import { fetchMessages as fetchMessagesAPI, sendMessage as sendMessageAPI } from "./apiUser.jsx";
+import {
+  fetchMessages as fetchMessagesAPI,
+  sendMessage as sendMessageAPI,
+} from "./apiUser.jsx";
 
-const socket = io.connect(`${API}`);
+const socket = io(`${API.replace("/api", "")}`, {
+  transports: ["websocket", "polling"],
+  withCredentials: true,
+});
 
 function Home() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [senderId, setSenderId] = useState("");
+  const [senderId, setSenderId] = useState(
+    JSON.parse(localStorage.getItem("token")).user._id
+  );
   const [receiverId, setReceiverId] = useState("");
   const [receiver, setReceiver] = useState();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
   const chatBodyRef = useRef(null);
   const chatEndRef = useRef(null);
   const isFetching = useRef(false);
 
+  // Fetch messages for pagination
   const loadMessages = async (chatId, pageNum = 1) => {
     if (!chatId || isFetching.current || !hasMore) return;
     isFetching.current = true;
@@ -31,7 +41,7 @@ function Home() {
         return;
       }
 
-      const newMsgs = res.messages.reverse(); 
+      const newMsgs = res.messages.reverse();
       if (newMsgs.length === 0) {
         setHasMore(false);
         return;
@@ -46,46 +56,63 @@ function Home() {
     }
   };
 
+  // Send message
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!message.length || !receiverId) return;
 
     const newMsg = { senderId, receiverId, text: message, self: true };
+
+    // Optimistic UI update
     setMessages((prev) => [...prev, newMsg]);
 
-    // send to server DB
-    const res = await sendMessageAPI(senderId, receiverId, message);
-    if (res.error) {
-      console.error("Send message failed:", res.error);
+    try {
+      // Save to DB
+      const res = await sendMessageAPI(senderId, receiverId, message);
+      if (res.error) {
+        console.error("Send message failed:", res.error);
+      }
+    } catch (err) {
+      console.error("Send message error:", err);
     }
 
-    // also via socket
+    // Send via socket
     socket.emit("message", newMsg);
 
     setMessage("");
   };
 
+  // Setup socket connection
   useEffect(() => {
+    const tokenUser = JSON.parse(localStorage.getItem("token")).user;
+
     socket.on("connect", () => {
-      const tokenUser = JSON.parse(localStorage.getItem("token")).user;
       socket.emit("join", tokenUser._id);
       setSenderId(tokenUser._id);
     });
 
     socket.on("receiveMessage", (data) => {
-      setMessages((prev) => [...prev, { ...data, self: false }]);
+      // Prevent duplicate self-messages (already optimistically added)
+      if (data.senderId === senderId) return;
+
+      setMessages((prev) => [
+        ...prev,
+        { ...data, self: data.senderId === senderId },
+      ]);
     });
 
     return () => {
       socket.off("connect");
       socket.off("receiveMessage");
     };
-  }, []);
+  }, [senderId]);
 
+  // Scroll to bottom when new message arrives
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Load messages when receiver changes
   useEffect(() => {
     if (receiverId) {
       setMessages([]);
@@ -95,6 +122,7 @@ function Home() {
     }
   }, [receiverId]);
 
+  // Infinite scroll for older messages
   const handleScroll = () => {
     if (chatBodyRef.current.scrollTop === 0 && hasMore) {
       loadMessages(receiverId, page + 1);
@@ -137,6 +165,12 @@ function Home() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  sendMessage(e);
+                }
+              }}
             />
             <button onClick={sendMessage}>Send</button>
           </div>

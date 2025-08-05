@@ -1,27 +1,31 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Sidebar.css";
-import { searchUsers, logout } from "./apiUser";
+import { searchUsers, logout, getFriends } from "./apiUser";
 
 const Sidebar = (props) => {
   const [image, setImage] = useState(
     JSON.parse(localStorage.getItem("token")).user.profile
   );
+  const [friends, setFriends] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [searchName, setSearchName] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   const [collapsed, setCollapsed] = useState(true);
 
+  const userId = JSON.parse(localStorage.getItem("token")).user._id;
+
   useEffect(() => {
-    function handleResize() {
-      const mobile = window.innerWidth <= 1024;
-      setIsMobile(mobile);
-      if (!mobile) setCollapsed(false); // Always show on desktop
+    try{
+      getFriends(userId)
+      .then(response => {
+        console.log(response.data.friends)
+        setFriends(response.data.friends)
+    });
+    }catch(err){
+      console.log(err);
     }
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [userId]);
 
   async function handleSearch(e) {
     const query = e.target.value.trim();
@@ -40,7 +44,6 @@ const Sidebar = (props) => {
     props.setReceiverId(user._id);
     setSearchResults([]);
     setSearchName('');
-    console.log(user, user._id);
   }
 
   return (
@@ -81,13 +84,24 @@ const Sidebar = (props) => {
                   <span>{user.username}</span>
                 </li>
               ))
+            ) : friends.length > 0 ? (
+              friends.map((user, index) => (
+                <li key={index} onClick={() => handleReceiver(user)}>
+                  <img
+                    src={user.profile}
+                    alt="Profile"
+                    className="profile-icon"
+                  />
+                  <span>{user.username}</span>
+                </li>
+              ))
             ) : (
               <li>No friends connected 🥲</li>
             )}
           </ul>
-        <button className="logout-btn" onClick={logout}>
-          Logout
-        </button>
+          <button className="logout-btn" onClick={logout}>
+            Logout
+          </button>
         </div>
       </div>
     </>
