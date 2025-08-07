@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import {
   fetchMessages as fetchMessagesAPI,
   sendMessage as sendMessageAPI,
+  getChat,
 } from "./apiUser.jsx";
 
 const socket = io(`${API.replace("/api", "")}`, {
@@ -16,11 +17,12 @@ const socket = io(`${API.replace("/api", "")}`, {
 function Home() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [senderId, setSenderId] = useState(
+  const [senderId] = useState(
     JSON.parse(localStorage.getItem("token")).user._id
   );
   const [receiverId, setReceiverId] = useState("");
   const [receiver, setReceiver] = useState();
+  const [chatId, setChatId] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
@@ -28,26 +30,56 @@ function Home() {
   const chatEndRef = useRef(null);
   const isFetching = useRef(false);
 
-  // Fetch messages for pagination
+  // Load chat and then fetch messages
+  useEffect(() => {
+    const loadChatAndMessages = async () => {
+      if (!receiverId) return;
+
+      setMessages([]);
+      setPage(1);
+      setHasMore(true);
+
+      const chatRes = await getChat(senderId, receiverId);
+      if (chatRes.error || !chatRes.chat) {
+        console.log("No chat yet between you and this user");
+        return;
+      }
+
+      setChatId(chatRes.chat._id);
+      await loadMessages(chatRes.chat._id, 1);
+    };
+
+    loadChatAndMessages();
+  }, [receiverId]);
+
   const loadMessages = async (chatId, pageNum = 1) => {
     if (!chatId || isFetching.current || !hasMore) return;
     isFetching.current = true;
 
     try {
       const res = await fetchMessagesAPI(chatId, pageNum, 20);
-
+      await console.log(res);
       if (res.error) {
         console.error(res.error);
         return;
       }
 
-      const newMsgs = res.messages.reverse();
+      const newMsgs = res.messages.reverse().map((msg) => ({
+        ...msg,
+        self: msg.sender._id === senderId,
+      }));
+
       if (newMsgs.length === 0) {
         setHasMore(false);
         return;
       }
 
-      setMessages((prev) => [...newMsgs, ...prev]);
+      setMessages((prev) => {
+        const existingIds = new Set(prev.map((m) => m._id));
+        const filtered = newMsgs.filter((m) => !existingIds.has(m._id));
+        return [...filtered, ...prev];
+      });
+
       setPage(pageNum);
     } catch (err) {
       console.error("Failed to fetch messages:", err);
@@ -56,49 +88,60 @@ function Home() {
     }
   };
 
-  // Send message
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!message.length || !receiverId) return;
 
-    const newMsg = { senderId, receiverId, text: message, self: true };
+    const newMsg = {
+      _id: Date.now().toString(), // temp id for deduplication
+      sender: { _id: senderId },
+      content: message,
+      chat: chatId,
+      self: true,
+    };
 
-    // Optimistic UI update
     setMessages((prev) => [...prev, newMsg]);
+    setMessage("");
 
     try {
-      // Save to DB
       const res = await sendMessageAPI(senderId, receiverId, message);
-      if (res.error) {
-        console.error("Send message failed:", res.error);
-      }
+      if (res.error) console.error("Send message failed:", res.error);
+      else if (res.message?.chat) setChatId(res.message.chat);
     } catch (err) {
       console.error("Send message error:", err);
     }
 
-    // Send via socket
     socket.emit("message", newMsg);
-
-    setMessage("");
   };
 
-  // Setup socket connection
+  // Socket listener
   useEffect(() => {
     const tokenUser = JSON.parse(localStorage.getItem("token")).user;
 
     socket.on("connect", () => {
       socket.emit("join", tokenUser._id);
-      setSenderId(tokenUser._id);
     });
 
-    socket.on("receiveMessage", (data) => {
-      // Prevent duplicate self-messages (already optimistically added)
-      if (data.senderId === senderId) return;
+    /*socket.on("receiveMessage", (data) => {
+      setMessages((prev) => {
+        // skip duplicates by _id
+        if (data._id && prev.some((m) => m._id === data._id)) return prev;
 
-      setMessages((prev) => [
-        ...prev,
-        { ...data, self: data.senderId === senderId },
-      ]);
+        return [
+          ...prev,
+          {
+            ...data,
+            self: data.senderId === senderId,
+          },
+        ];
+      });
+    });*/
+
+    socket.on("receiveMessage", (data) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m._id === data._id)) return prev; // avoid duplicates
+        return [...prev, { ...data, self: data.senderId === senderId }];
+      });
     });
 
     return () => {
@@ -112,20 +155,10 @@ function Home() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Load messages when receiver changes
-  useEffect(() => {
-    if (receiverId) {
-      setMessages([]);
-      setPage(1);
-      setHasMore(true);
-      loadMessages(receiverId, 1);
-    }
-  }, [receiverId]);
-
   // Infinite scroll for older messages
   const handleScroll = () => {
-    if (chatBodyRef.current.scrollTop === 0 && hasMore) {
-      loadMessages(receiverId, page + 1);
+    if (chatBodyRef.current.scrollTop === 0 && hasMore && chatId) {
+      loadMessages(chatId, page + 1);
     }
   };
 
@@ -151,10 +184,10 @@ function Home() {
           >
             {messages.map((msg, index) => (
               <div
-                key={index}
+                key={msg._id || index}
                 className={`chat-message ${msg.self ? "sent" : "received"}`}
               >
-                {msg.text}
+                {msg.content}
               </div>
             ))}
             <div ref={chatEndRef}></div>

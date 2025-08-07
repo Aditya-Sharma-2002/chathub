@@ -165,3 +165,15 @@ export const getFriends = async (userId) => {
         console.log("Failed to load friends:", err);
     }
 };
+
+export const getChat = async (userId, friendId) => {
+  try {
+    const response = await axios.get(`${API}/chat/${userId}/${friendId}`);
+    return response.data;
+  } catch (err) {
+    return {
+      error: err.response?.data?.error || "Failed to fetch chat",
+      status: err.response?.status || 500
+    };
+  }
+};

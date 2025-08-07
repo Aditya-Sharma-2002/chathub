@@ -19,7 +19,7 @@ const Sidebar = (props) => {
     try{
       getFriends(userId)
       .then(response => {
-        console.log(response.data.friends)
+        // console.log(response.data.friends)
         setFriends(response.data.friends)
     });
     }catch(err){
