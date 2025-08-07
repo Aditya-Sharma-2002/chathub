@@ -38,10 +38,6 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    chats: [{
-        type: ObjectId,
-        ref: 'Chat'
-    }],
     lastSeen: {
         type: Date,
         default: Date.now
