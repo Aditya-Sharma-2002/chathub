@@ -41,6 +41,8 @@ const io = new Server(httpServer, {
     },
 });
 
+app.set('io', io);
+
 chatController.initIO(io);
 
 io.on('connection', (socket) => {
