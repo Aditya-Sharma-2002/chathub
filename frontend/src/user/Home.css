@@ -52,21 +52,39 @@ body, html, #root {
   gap: 0.75rem;
 }
 
-/* Individual Messages */
+/* Base style for any message */
 .chat-message {
-  align-self: flex-start;
-  background-color: var(--bg-color);
   padding: 0.75rem 1rem;
   border-radius: 20px;
-  box-shadow: var(--shadow-soft);
   max-width: 75%;
-  color: var(--text-color);
   word-break: break-word;
+  font-size: 0.95rem;
+  background: var(--bg-color);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease;
+}
+
+.chat-message:hover {
+  transform: translateY(-2px);
 }
 
 .chat-message.sender {
   align-self: flex-end;
   background-color: var(--bg-color);
+}
+
+/* Sent messages (right side) */
+.chat-message.sent {
+  align-self: flex-end;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #bec4d2;
+  background: var(--bg-color);
+}
+
+/* Received messages (left side) */
+.chat-message.received {
+  align-self: flex-start;
+  box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #bec4d2;
+  background: var(--bg-color);
 }
 
 /* Input Section */
