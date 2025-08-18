@@ -135,6 +135,20 @@
   transform: translateY(-1px);
 }
 
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.last-message {
+  font-size: 0.85rem;
+  color: gray;
+}
+
 @media screen and (max-width: 1024px) {
   .sidebar {
     position: fixed;

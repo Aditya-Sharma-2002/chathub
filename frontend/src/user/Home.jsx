@@ -30,7 +30,7 @@ function Home() {
   const chatEndRef = useRef(null);
   const isFetching = useRef(false);
 
-  // Load chat and then fetch messages
+  // Load chat + initial messages
   useEffect(() => {
     const loadChatAndMessages = async () => {
       if (!receiverId) return;
@@ -47,6 +47,9 @@ function Home() {
 
       setChatId(chatRes.chat._id);
       await loadMessages(chatRes.chat._id, 1);
+
+      // join socket room for this chat
+      socket.emit("joinChat", chatRes.chat._id);
     };
 
     loadChatAndMessages();
@@ -58,7 +61,6 @@ function Home() {
 
     try {
       const res = await fetchMessagesAPI(chatId, pageNum, 20);
-      await console.log(res);
       if (res.error) {
         console.error(res.error);
         return;
@@ -92,29 +94,44 @@ function Home() {
     e.preventDefault();
     if (!message.length || !receiverId) return;
 
-    const newMsg = {
-      _id: Date.now().toString(), // temp id for deduplication
-      sender: { _id: senderId },
-      content: message,
-      chat: chatId,
-      self: true,
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
+    const tempText = message;
     setMessage("");
 
+    // Optimistic message
+    const tempMsg = {
+      _id: Date.now(),
+      sender: { _id: senderId },
+      content: tempText,
+      createdAt: new Date().toISOString(),
+      self: true,
+    };
+    setMessages((prev) => [...prev, tempMsg]);
+
+    // 🔥 Send via socket (instant delivery)
+    socket.emit("sendMessage", {
+      message: tempMsg,
+      chatId,
+      sender: { _id: senderId },
+      receiverId,
+    });
+
+    // 📦 Save in DB
     try {
-      const res = await sendMessageAPI(senderId, receiverId, message);
-      if (res.error) console.error("Send message failed:", res.error);
-      else if (res.message?.chat) setChatId(res.message.chat);
+      const res = await sendMessageAPI(senderId, receiverId, tempText);
+      if (res && res._id) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m._id === tempMsg._id ? { ...res, self: true } : m
+          )
+        );
+        if (!chatId) setChatId(res.chat._id);
+      }
     } catch (err) {
       console.error("Send message error:", err);
     }
-
-    socket.emit("message", newMsg);
   };
 
-  // Socket listener
+  // Socket listeners
   useEffect(() => {
     const tokenUser = JSON.parse(localStorage.getItem("token")).user;
 
@@ -122,25 +139,16 @@ function Home() {
       socket.emit("join", tokenUser._id);
     });
 
-    /*socket.on("receiveMessage", (data) => {
+    socket.on("receiveMessage", (data) => {
       setMessages((prev) => {
-        // skip duplicates by _id
-        if (data._id && prev.some((m) => m._id === data._id)) return prev;
-
+        if (prev.some((m) => m._id === data._id)) return prev; // no duplicates
         return [
           ...prev,
           {
             ...data,
-            self: data.senderId === senderId,
+            self: data.sender._id === senderId,
           },
         ];
-      });
-    });*/
-
-    socket.on("receiveMessage", (data) => {
-      setMessages((prev) => {
-        if (prev.some((m) => m._id === data._id)) return prev; // avoid duplicates
-        return [...prev, { ...data, self: data.senderId === senderId }];
       });
     });
 
@@ -150,12 +158,12 @@ function Home() {
     };
   }, [senderId]);
 
-  // Scroll to bottom when new message arrives
+  // Auto scroll on new messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Infinite scroll for older messages
+  // Infinite scroll (older msgs)
   const handleScroll = () => {
     if (chatBodyRef.current.scrollTop === 0 && hasMore && chatId) {
       loadMessages(chatId, page + 1);
@@ -176,6 +184,7 @@ function Home() {
           <div className="chat-header">
             <h3 id="receiver-name">{receiver.name}</h3>
           </div>
+
           <div
             className="chat-body"
             ref={chatBodyRef}
@@ -192,6 +201,7 @@ function Home() {
             ))}
             <div ref={chatEndRef}></div>
           </div>
+
           <div className="chat-input">
             <input
               type="text"

@@ -40,6 +40,7 @@ const Sidebar = (props) => {
   }
 
   function handleReceiver(user) {
+    console.log(user);
     props.setReceiver(user);
     props.setReceiverId(user._id);
     setSearchResults([]);
@@ -81,7 +82,17 @@ const Sidebar = (props) => {
                     alt="Profile"
                     className="profile-icon"
                   />
-                  <span>{user.username}</span>
+                  <div className="user-info">
+                    <span className="name">{user.name}</span>
+                    <span className="username">{user.username}</span>
+                    <span className="last-message">
+                      {user.latestMessage?.content
+                        ? user.latestMessage.content.length > 20
+                          ? user.latestMessage.content.slice(0, 20) + "..."
+                          : user.latestMessage.content
+                        : "No messages yet"}
+                    </span>
+                  </div>
                 </li>
               ))
             ) : friends.length > 0 ? (
@@ -92,7 +103,17 @@ const Sidebar = (props) => {
                     alt="Profile"
                     className="profile-icon"
                   />
-                  <span>{user.username}</span>
+                  <div className="user-info">
+                    <span className="username">{user.username}</span>
+                    <span className="last-message">
+                      {/* {console.log(user)} */}
+                      {user.latestMessage?.content
+                        ? user.latestMessage.content.length > 20
+                          ? user.latestMessage.content.slice(0, 20) + "..."
+                          : user.latestMessage.content
+                        : "No messages yet"}
+                    </span>
+                  </div>
                 </li>
               ))
             ) : (

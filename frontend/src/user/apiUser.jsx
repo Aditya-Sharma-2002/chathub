@@ -27,19 +27,6 @@ export const signup = async (name,email,password) => {
     }
 }
 
-/*export const forgot = async (email) => {
-    try{
-        const response = await axios.post(`${API}/forgot`, { email });
-        return response.data;
-    }    
-    catch(err){
-        // console.log(err.response.data);
-        if(err.response.data.error)
-            return err.response
-        return err.response;
-    }
-}*/
-
 export const forgot = async (email) => {
   try {
     const response = await axios.post(`${API}/forgot`, { email });
@@ -145,7 +132,7 @@ export const sendMessage = async (senderId, receiverId, text) => {
       senderId,
       receiverId,
       text
-    });
+    });    
     return response.data; // expected { message }
   } catch (err) {
     return {

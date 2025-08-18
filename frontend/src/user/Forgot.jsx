@@ -27,25 +27,6 @@ function Forgot() {
         }
 
         const response = await forgot(email);
-
-        // if (response?.error) {
-        //     setFormErrors({ email: response.data.error });
-        //     return;
-        // }
-
-        // if (response?.otp) {
-        //     setServerOTP(response.otp);
-        //     setStep(2);
-        // } else {
-        //     if (response?.error) {
-        //         console.log(response);
-        //         setFormErrors({ email: response.error });
-        //         return;
-        //     } else {
-        //         setFormErrors({ email: "Failed to send OTP" });
-        //     }
-        // }
-
         
         if (response.error) {
             setFormErrors({ email: response.error });
