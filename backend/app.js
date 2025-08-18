@@ -22,23 +22,24 @@ app.use(cors({
 app.use(express.json());
 app.use(morgan('dev'));
 
-app.use('/api',authRoutes);
-app.use('/api',userRoutes);
-app.use('/api',chatRoutes);
+app.use('/api', authRoutes);
+app.use('/api', userRoutes);
+app.use('/api', chatRoutes);
 
-const port = process.env.PORT || 5000 ;
-const connectDB = async() => {
-    await mongoose.connect(`${process.env.MONGODB}`)
-    console.log(`Database connected with ${mongoose.connection.host}`);
-}
+const port = process.env.PORT || 5000;
+
+const connectDB = async () => {
+  await mongoose.connect(`${process.env.MONGODB}`);
+  console.log(`Database connected with ${mongoose.connection.host}`);
+};
 connectDB();
 
 const io = new Server(httpServer, {
-    cors : {
-        origin : "*",
-        methods : ['GET','POST'],
-        credentials : true,
-    },
+  cors: {
+    origin: "*",
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
 });
 
 app.set('io', io);
@@ -48,52 +49,20 @@ chatController.initIO(io);
 io.on('connection', (socket) => {
   console.log(`A user connected: ${socket.id}`);
 
-  // join a user's room
-  socket.on('join', (userId) => {
-    socket.join(userId);    
-    console.log(`User ${userId} joined their room`);
+  // client joins a chat room by chatId
+  socket.on('joinChat', (chatId) => {
+    socket.join(chatId);
+    console.log(`Socket ${socket.id} joined chat ${chatId}`);
   });
 
-  // handle sending a new message
-  socket.on('message', async ({ senderId, receiverId, text }) => {
-    try {
-      // find or create chat between two users
-      let chat = await Chat.findOne({
-        isGroupChat: false,
-        users: { $all: [senderId, receiverId] }
-      });
-
-      if (!chat) {
-        chat = await Chat.create({
-          users: [senderId, receiverId],
-          isGroupChat: false,
-        });
-      }
-
-      // create and save message
-      const message = await Message.create({
-        sender: senderId,
-        content: text,
-        chat: chat._id,
-      });
-
-      // update latest message in chat
-      chat.latestMessage = message._id;
-      await chat.save();
-
-      // send to receiver and back to sender (so sender sees it too)
-      [receiverId, senderId].forEach(id => {
-        io.to(id).emit('receiveMessage', {
-          senderId,
-          text,
-          createdAt: message.createdAt,
-          chatId: chat._id,
-        });
-      });
-
-    } catch (err) {
-      console.error("Error in message handler:", err);
-    }
+  // now sockets only broadcast, they don’t save
+  socket.on("sendMessage", ({ message, chatId, sender }) => {
+    // broadcast to all sockets in the room
+    io.to(chatId).emit("receiveMessage", {
+      ...message,
+      sender,
+      chatId,
+    });
   });
 
   socket.on('disconnect', () => {
@@ -101,8 +70,6 @@ io.on('connection', (socket) => {
   });
 });
 
-
-
 httpServer.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });

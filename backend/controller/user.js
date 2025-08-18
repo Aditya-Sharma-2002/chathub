@@ -42,7 +42,7 @@ exports.searchUsers = async (req, res) => {
     try {
         let users = await User.find({ 
             username: { $regex: req.query.username, $options: 'i' },
-            name: { $regex: req.query.username, $options: 'i' }
+            // name: { $regex: req.query.username, $options: 'i' }
         }).select('-email -hashedPassword -salt -friends');
 
         users = users.map(user => ({

@@ -6,6 +6,6 @@ const { fetchMessages, sendMessage, getChat } = require('../controller/chat');
 
 router.get('/messages/:chatId', fetchMessages);
 router.post('/messages', sendMessage);
-router.get('/chat/:userId/:friendId', getChat);
+router.get('/chat/:userId/:friendId', getChat); 
 
 module.exports = router;
