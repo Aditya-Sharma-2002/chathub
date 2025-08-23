@@ -1,4 +1,5 @@
 const User = require('../model/user');
+const Chat = require('../model/chat');
 const multer = require('multer');
 
 const storage = multer.memoryStorage();
@@ -74,13 +75,37 @@ exports.setNames = async (req, res) => {
 
 exports.getFriends = async (req, res) => {
   try {
-    const { userId } = req.query; 
+    const { userId } = req.query;
+
     const user = await User.findById(userId)
       .populate("friends", "name username profile");
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    res.json({ friends: user.friends });
+    // Build enriched friends list with latestMessage
+    const enrichedFriends = await Promise.all(
+      user.friends.map(async (friend) => {
+        // Find the one-to-one chat between current user and this friend
+        const chat = await Chat.findOne({
+          isGroupChat: false,
+          users: { $all: [userId, friend._id] },
+        })
+          .populate({
+            path: "latestMessage",
+            populate: {
+              path: "sender",
+              select: "name username profile",
+            },
+          });
+
+        return {
+          ...friend.toObject(),
+          latestMessage: chat?.latestMessage || null,
+        };
+      })
+    );
+
+    res.json({ friends: enrichedFriends });
   } catch (err) {
     console.error("Get Friends Error:", err);
     res.status(500).json({ error: "Failed to fetch friends" });
