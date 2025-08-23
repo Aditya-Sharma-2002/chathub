@@ -16,13 +16,11 @@ const Sidebar = (props) => {
   const userId = JSON.parse(localStorage.getItem("token")).user._id;
 
   useEffect(() => {
-    try{
-      getFriends(userId)
-      .then(response => {
-        // console.log(response.data.friends)
-        setFriends(response.data.friends)
-    });
-    }catch(err){
+    try {
+      getFriends(userId).then((response) => {
+        setFriends(response.data.friends);
+      });
+    } catch (err) {
       console.log(err);
     }
   }, [userId]);
@@ -40,7 +38,6 @@ const Sidebar = (props) => {
   }
 
   function handleReceiver(user) {
-    console.log(user);
     props.setReceiver(user);
     props.setReceiverId(user._id);
     setSearchResults([]);
@@ -85,7 +82,7 @@ const Sidebar = (props) => {
                   <div className="user-info">
                     <span className="name">{user.name}</span>
                     <span className="username">{user.username}</span>
-                    <span className="last-message">
+                    <span className="last-message">                      
                       {user.latestMessage?.content
                         ? user.latestMessage.content.length > 20
                           ? user.latestMessage.content.slice(0, 20) + "..."
@@ -106,7 +103,6 @@ const Sidebar = (props) => {
                   <div className="user-info">
                     <span className="username">{user.username}</span>
                     <span className="last-message">
-                      {/* {console.log(user)} */}
                       {user.latestMessage?.content
                         ? user.latestMessage.content.length > 20
                           ? user.latestMessage.content.slice(0, 20) + "..."
@@ -120,9 +116,12 @@ const Sidebar = (props) => {
               <li>No friends connected 🥲</li>
             )}
           </ul>
-          <button className="logout-btn" onClick={logout}>
-            Logout
-          </button>
+        </div>
+
+        {/* Sidebar Footer: Create Group + Logout */}
+        <div className="sidebar-footer">
+          <button className="create-group-btn">➕ Create Group</button>
+          <button className="logout-btn" onClick={logout}>Logout</button>
         </div>
       </div>
     </>
