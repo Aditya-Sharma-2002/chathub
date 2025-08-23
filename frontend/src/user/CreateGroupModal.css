@@ -1,0 +1,126 @@
+/* Overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+/* Modal */
+.modal {
+  width: 380px;
+  background: #e0e0e0;
+  border-radius: 20px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.neumorphic {
+  box-shadow: 9px 9px 16px #b8b9be,
+              -9px -9px 16px #ffffff;
+}
+
+/* Close Button */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #555;
+}
+
+/* Content slider */
+.modal-content {
+  display: flex;
+  width: 200%;
+  transition: transform 0.4s ease;
+}
+
+.modal-content.step-1 {
+  transform: translateX(0%);
+}
+
+.modal-content.step-2 {
+  transform: translateX(-50%);
+}
+
+.step {
+  width: 50%;
+  padding: 1rem;
+}
+
+/* Friends List */
+.friends-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 1rem 0;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #c1c2c4,
+              inset -4px -4px 8px #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.friend-item img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+
+/* Buttons */
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.next-btn, .create-btn {
+  background: #4a90e2;
+  color: white;
+}
+
+.back-btn {
+  background: #ddd;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Actions row */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+input[type="text"], input[type="file"] {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  border: none;
+  background: #e0e0e0;
+  box-shadow: inset 4px 4px 8px #c1c2c4,
+              inset -4px -4px 8px #ffffff;
+}

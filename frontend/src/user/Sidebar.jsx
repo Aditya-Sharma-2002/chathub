@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Sidebar.css";
 import { searchUsers, logout, getFriends } from "./apiUser";
+import CreateGroupModal from "./CreateGroupModal";
 
 const Sidebar = (props) => {
-  const [image, setImage] = useState(
+  const [image] = useState(
     JSON.parse(localStorage.getItem("token")).user.profile
   );
   const [friends, setFriends] = useState([]);
@@ -12,6 +13,7 @@ const Sidebar = (props) => {
   const [searchName, setSearchName] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   const [collapsed, setCollapsed] = useState(true);
+  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
 
   const userId = JSON.parse(localStorage.getItem("token")).user._id;
 
@@ -42,6 +44,11 @@ const Sidebar = (props) => {
     props.setReceiverId(user._id);
     setSearchResults([]);
     setSearchName('');
+  }
+
+  function handleCreateGroup(data) {
+    console.log("Group Created:", data);
+    // 👉 call backend API here later
   }
 
   return (
@@ -120,10 +127,25 @@ const Sidebar = (props) => {
 
         {/* Sidebar Footer: Create Group + Logout */}
         <div className="sidebar-footer">
-          <button className="create-group-btn">➕ Create Group</button>
-          <button className="logout-btn" onClick={logout}>Logout</button>
+          <button
+            className="create-group-btn"
+            onClick={() => setIsGroupModalOpen(true)}
+          >
+            ➕ Create Group
+          </button>
+          <button className="logout-btn" onClick={logout}>
+            Logout
+          </button>
         </div>
       </div>
+
+      {/* Group Modal */}
+      <CreateGroupModal
+        friends={friends}
+        isOpen={isGroupModalOpen}
+        onClose={() => setIsGroupModalOpen(false)}
+        onCreate={handleCreateGroup}
+      />
     </>
   );
 };
