@@ -45,6 +45,8 @@ exports.sendMessage = async (req, res) => {
         users: [senderId, receiverId],
         isGroupChat: false,
       });
+      await User.findByIdAndUpdate(senderId, { $addToSet: { friends: receiverId } });
+      await User.findByIdAndUpdate(receiverId, { $addToSet: { friends: senderId } });
     }
 
     // create and save message
