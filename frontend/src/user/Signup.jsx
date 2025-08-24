@@ -24,7 +24,7 @@ function Signup() {
             return; // Don't proceed if any errors
         }
 
-        signup(name, email, password).then(response => {
+        signup(name, email, password, repassword).then(response => {
             if (response.error) {
                 console.log(response.error);
             } else {

@@ -13,12 +13,13 @@ export const login = async (email,password) => {
     }
 }
 
-export const signup = async (name,email,password) => {
+export const signup = async (name,email,password,repassword) => {
     try{
         const response = await axios.post(`${API}/signup`,{
             name: name,
             email: email,
-            hashedPassword: password
+            password: password,
+            repassword: repassword
         })
         return response;
     }
